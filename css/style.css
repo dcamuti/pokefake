@@ -1,0 +1,11 @@
+html,body{margin:0;padding:0;background:#101820;color:#c8d8e8;font-family:monospace;
+  display:flex;flex-direction:column;align-items:center;min-height:100vh}
+h1{font-size:14px;letter-spacing:2px;color:#f8d030;margin:14px 0 8px}
+#gioco{image-rendering:pixelated;image-rendering:crisp-edges;width:min(96vw,860px);
+  aspect-ratio:3/2;background:#000;border:4px solid #385890;border-radius:6px}
+#barra{margin:10px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+button{background:#385890;color:#f0f4f8;border:none;padding:6px 14px;border-radius:4px;
+  font-family:monospace;font-size:12px;cursor:pointer}
+button:hover{background:#4a70b0}
+#aiuto{font-size:11px;color:#7890a8;max-width:640px;text-align:center;margin-bottom:16px;line-height:1.6}
+kbd{background:#283848;border-radius:3px;padding:1px 5px;color:#e8f0f8}
