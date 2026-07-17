@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>VALMORA — Leggende della Regione Smeralda</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Un gioco di ruolo 2D in stile GBA: cattura, allena e fai evolvere 54 fakemon, sfida 8 palestre e la Lega di Valmora.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<h1>◆ VALMORA ◆</h1>
+<canvas id="gioco" width="480" height="320"></canvas>
+<div id="barra">
+ <button id="btn-export">Esporta salvataggio</button>
+ <button id="btn-import">Importa salvataggio</button>
+ <input type="file" id="file-import" accept=".json" style="display:none">
+</div>
+<div id="aiuto">
+ <kbd>Frecce</kbd>/<kbd>WASD</kbd> muovi · <kbd>Z</kbd>/<kbd>Spazio</kbd> conferma/interagisci ·
+ <kbd>X</kbd>/<kbd>Esc</kbd> annulla · <kbd>Invio</kbd> menu · <kbd>M</kbd> audio on/off<br>
+ Cammina nell'erba alta per incontrare creature selvatiche. Parla con tutti: qualcuno vorrà sfidarti!
+</div>
+<script src="js/game.js"></script>
+</body>
+</html>
