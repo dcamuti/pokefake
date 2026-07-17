@@ -521,6 +521,16 @@ const TITLEIMG={ok:false};
 (function(){ if(typeof Image==='undefined')return; const img=new Image();
  img.onload=()=>{ TITLEIMG.img=img; TITLEIMG.ok=true; }; img.onerror=()=>{};
  img.src='assets/ui/title.png'; })();
+const HEROIMG={ok:false}, NPCIMG={ok:false};
+(function(){ if(typeof Image==='undefined')return;
+ for(const [obj,src] of [[HEROIMG,'assets/sprites/chars/hero.png'],[NPCIMG,'assets/sprites/chars/npcs.png']]){
+  const img=new Image();
+  img.onload=()=>{ obj.img=img; obj.ok=true; };
+  img.onerror=()=>{};
+  img.src=src;
+ }
+})();
+const NPC_ROW={0:0,1:1,2:2,3:3,4:4,'P':5,'N':6,'M':7,'T':8,'L':9,'E':10,'C':11};
 const BIMG={};
 function bldgImg(kind){ if(BIMG[kind])return BIMG[kind]; const img=new Image(); img.src='assets/tiles/buildings/'+kind+'.png'; BIMG[kind]=img; return img; }
 (function(){
@@ -760,6 +770,29 @@ const NPC_PAL={
  HERO:{hat:'#d84040',hair:'#4a2a10',shirt:'#e05048',pants:'#3a5a8a'}
 };
 function drawActor(g,sx,sy,dir,frame,pal){
+ const isHero=pal==='HERO';
+ const sheet=isHero?HEROIMG:NPCIMG;
+ if(sheet.ok){
+  const CW=16,CH=24;
+  let sxx,syy;
+  let flip=(dir===1); // destra = sinistra specchiata
+  if(isHero){
+   const drow= dir===2?0 : dir===0?1 : 2;
+   sxx=(frame%3)*CW; syy=drow*CH;
+  } else {
+   const row=NPC_ROW[pal]!==undefined?NPC_ROW[pal]:0;
+   const dcol= dir===2?0 : dir===0?1 : 2;
+   sxx=dcol*CW; syy=row*CH;
+  }
+  g.imageSmoothingEnabled=false;
+  g.fillStyle='rgba(0,0,0,.22)';
+  g.beginPath(); g.ellipse(sx+16,sy+29,10,4,0,0,7); g.fill();
+  const dy=sy-16;
+  if(flip){ g.save(); g.translate(sx+32,dy); g.scale(-1,1);
+   g.drawImage(sheet.img,sxx,syy,CW,CH,0,0,32,48); g.restore(); }
+  else g.drawImage(sheet.img,sxx,syy,CW,CH,sx,dy,32,48);
+  return;
+ }
  // 32x32 a schermo, ancorato al tile (leggermente più alto)
  const P=NPC_PAL[pal]||NPC_PAL[0];
  sy-=8;
