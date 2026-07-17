@@ -536,7 +536,7 @@ function bldgImg(kind){ if(BIMG[kind])return BIMG[kind]; const img=new Image(); 
 (function(){
  if(typeof Image==='undefined')return;
  const img=new Image();
- img.onload=()=>{ TILE_ORDER.forEach((k,i)=>TILESET.map[k]=i); TILESET.img=img; TILESET.ok=true; };
+ img.onload=()=>{ TILE_ORDER.forEach((k,i)=>TILESET.map[k]=i); TILESET.map[25]=0; TILESET.img=img; TILESET.ok=true; };
  img.onerror=()=>{};
  img.src='assets/tiles/tileset.png';
 })();
