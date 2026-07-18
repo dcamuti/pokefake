@@ -85,7 +85,7 @@ const MOVES = {
  lingualunga:{n:'Lingualunga',t:'SPE',p:30,a:100,pp:30,fx:{st:'PAR',ch:.2}},
  ombrartiglio:{n:'Ombrartiglio',t:'SPE',p:70,a:100,pp:15,hc:1},
  psicoraggio:{n:'Psicoraggio',t:'PSI',p:65,a:100,pp:20},
- psichico:{n:'Psichico',t:'PSI',p:90,a:100,pp:10,fx:{stat:'def',d:-1,tgt:'foe',ch:.1}},
+ psichico:{n:'Psichico',t:'PSI',p:90,a:100,pp:10,fx:{stat:'spd',d:-1,tgt:'foe',ch:.1}},
  ipnosi:{n:'Ipnosi',t:'PSI',p:0,a:60,pp:20,fx:{st:'SLP'}},
  agilita:{n:'Agilità',t:'PSI',p:0,a:0,pp:30,fx:{stat:'spe',d:2,tgt:'self'}},
  colpokarate:{n:'Colpokarate',t:'LOT',p:50,a:100,pp:25,hc:1},
@@ -182,6 +182,15 @@ const DEX = [
  S(54,'Solverio',['PSI','VOL'],[100,110,90,130],[[1,'psicoraggio'],[1,'aeroassalto'],[40,'agilita'],[50,'psichico'],[60,'iperraggio']],null,3,255)
 ];
 const SP = id=>DEX[id-1];
+// Att./Dif. Speciali per specie (stile Gen III): bs diventa [ps,att,dif,atsp,dfsp,vel]
+const SPX={1:[45,55],2:[62,70],3:[85,90],4:[60,45],5:[80,60],6:[105,80],7:[50,50],8:[65,70],9:[85,95],
+10:[25,35],11:[50,60],12:[30,35],13:[45,50],14:[65,70],15:[20,25],16:[25,45],17:[80,70],18:[60,55],19:[85,75],
+20:[60,40],21:[85,55],22:[115,70],23:[30,40],24:[45,60],25:[35,45],26:[50,65],27:[55,50],28:[85,75],
+29:[60,40],30:[90,60],31:[120,80],32:[75,40],33:[120,70],34:[25,45],35:[40,70],36:[40,50],37:[60,75],
+38:[55,50],39:[85,80],40:[30,40],41:[50,65],42:[40,40],43:[70,70],44:[55,45],45:[80,70],46:[50,45],47:[70,65],48:[100,90],
+49:[80,85],50:[65,90],51:[85,75],52:[55,60],53:[75,85],54:[120,110]};
+for(const sp of DEX){ const q=SPX[sp.id]; sp.bs=[sp.bs[0],sp.bs[1],sp.bs[2],q[0],q[1],sp.bs[3]]; }
+const SPECIAL_TYPES=new Set(['FUO','ACQ','ERB','ELE','PSI','GHI','DRA']);
 
 // ---------- Oggetti ----------
 const ITEMS = {
@@ -207,7 +216,7 @@ const WORLD_W=256, WORLD_H=256, TILE=16;
 // tile: 0 erba,1 erba alta,2 albero,3 sentiero,4 fiori,5 acqua,6 staccionata,7 cartello,
 // 8 porta,9 muro,11 finestra,12 tappeto uscita,13 pavimento,14 tappeto,15 bancone,16 macchina cure,
 // 17 PC,18 libreria,19 statua,30-34 tetti (centro,market,palestra,casa,lab/lega), 20 altare
-const SOLID = new Set([2,5,6,7,9,11,15,16,17,18,19,30,31,32,33,34,20,25]);
+const SOLID = new Set([2,5,6,7,9,11,15,16,17,18,19,30,31,32,33,34,20,25,21]);
 
 const TOWNS = [
  {n:'Borgofoglia', x:28, y:210, lab:true, motto:'Dove ogni viaggio comincia.'},
@@ -304,6 +313,19 @@ function carveRoute(m, rng, ax,ay,bx,by, ridx){
    }
   }
   T(m,px,py,3); // sentiero centrale
+ }
+ // sporgenze saltabili sotto i tratti orizzontali
+ for(let i=6;i<pts.length-8;i++){
+  const p0=pts[i], p1=pts[i+1];
+  if(p1[1]===p0[1]&&Math.abs(p1[0]-p0[0])===1&&rng()<.09){
+   const len=3+Math.floor(rng()*3);
+   for(let k=0;k<len&&i+k<pts.length-1;k++){
+    const h=pts[i+k];
+    if(pts[i+k+1][1]!==h[1])break;
+    if(G(m,h[0],h[1]+1)===0&&G(m,h[0],h[1]+2)===0)T(m,h[0],h[1]+1,21);
+   }
+   i+=len+5;
+  }
  }
  // ciuffi d'erba alta
  for(let i=0;i<pts.length;i+=6){
@@ -511,7 +533,7 @@ function mkCanvas(w,h){ const c=document.createElement('canvas'); c.width=w; c.h
 function px(c,x,y,col){ c.fillStyle=col; c.fillRect(x,y,1,1); }
 
 // tileset esterno opzionale: striscia orizzontale di tile 16x16 nell'ordine di TILE_ORDER
-const TILE_ORDER=[0,1,2,3,4,'4b',5,'5b',6,7,8,9,11,12,13,14,15,16,17,18,19,20,30,31,32,33,34];
+const TILE_ORDER=[0,1,2,3,4,'4b',5,'5b',6,7,8,9,11,12,13,14,15,16,17,18,19,20,30,31,32,33,34,21];
 const TILESET={ok:false,map:{}};
 const TREE={ok:false};
 (function(){ if(typeof Image==='undefined')return; const img=new Image();
@@ -687,6 +709,10 @@ function renderTile(id,f){
    R2(6,1,4,4,'#c0c0c8'); R2(6,1,2,2,'#d8d8e0');
    g.strokeStyle='#707078'; g.strokeRect(5.5,4.5,5,7);
    break; }
+  case 21: { grass();
+   R2(0,8,16,3,'#e0c078'); R2(0,8,16,1,'#f0d898');
+   R2(0,11,16,2,'#a88448'); R2(0,13,16,1,'#7a5f30');
+   break; }
   case 20: { grass();
    R2(2,7,12,7,'#c8c8d8'); R2(2,7,12,1,'#e0e0ec'); R2(2,13,12,1,'#9898a8');
    R2(1,14,14,2,'#a8a8b8');
@@ -830,12 +856,12 @@ const GS = {
  party:[], box:[], bag:{sfera:5,pozione:3}, money:3000, badges:[], defeated:{}, flags:{},
  dex:{seen:{},caught:{}}, steps:0, anim:0, name:'ALEX'
 };
-let dialogQ=null, menuState=null, battle=null, fade=0, fadeCb=null;
+let dialogQ=null, menuState=null, battle=null, fade=0, fadeCb=null, cut=null;
 
 function statCalc(base,lv,isHp){ return isHp? Math.floor(base*2*lv/100)+lv+10 : Math.floor(base*2*lv/100)+5; }
 function mkMon(id,lv){
  const sp=SP(id);
- const m={id, lv, exp:lv*lv*lv, status:null, stages:{atk:0,def:0,spe:0}, moves:[]};
+ const m={id, lv, exp:lv*lv*lv, status:null, stages:{atk:0,def:0,spa:0,spd:0,spe:0}, moves:[]};
  const learn=sp.mv.filter(x=>x[0]<=lv).slice(-4);
  for(const [,k] of learn) m.moves.push({k, pp:MOVES[k].pp});
  recalcStats(m); m.hp=m.maxhp;
@@ -847,7 +873,9 @@ function recalcStats(m){
  m.maxhp=statCalc(sp.bs[0],m.lv,true);
  m.atk=statCalc(sp.bs[1],m.lv);
  m.def=statCalc(sp.bs[2],m.lv);
- m.spe=statCalc(sp.bs[3],m.lv);
+ m.spa=statCalc(sp.bs[3],m.lv);
+ m.spd=statCalc(sp.bs[4],m.lv);
+ m.spe=statCalc(sp.bs[5],m.lv);
  if(old&&m.hp!==undefined) m.hp=Math.min(m.maxhp, m.hp+(m.maxhp-old));
 }
 function expForLv(lv){ return lv*lv*lv; }
@@ -867,19 +895,91 @@ const DIRS=[[0,-1],[1,0],[0,1],[-1,0]]; // 0 su,1 dx,2 giù,3 sx
 function tryMove(d){
  GS.dir=d;
  const [dx,dy]=DIRS[d], nx=GS.px+dx, ny=GS.py+dy;
+ // dislivello: si salta solo verso il basso
+ if(d===2&&tileAt(nx,ny)===21&&!isBlocked(nx,ny+1)){
+  GS.moving=true; GS.jump=true; GS.mvx=nx; GS.mvy=ny+1; GS.mvt=0; sfx('run');
+  return;
+ }
  if(isBlocked(nx,ny))return;
  GS.moving=true; GS.mvx=nx; GS.mvy=ny; GS.mvt=0;
 }
 function arrive(){
- GS.px=GS.mvx; GS.py=GS.mvy; GS.moving=false; GS.steps++;
+ GS.px=GS.mvx; GS.py=GS.mvy; GS.moving=false; GS.jump=false; GS.steps++;
  const t=tileAt(GS.px,GS.py);
  const wkey=GS.px+','+GS.py;
  const warp=curMap().warps[wkey];
  if((t===8||t===12)&&warp){ doWarp(warp); return; }
+ if(checkRival())return;
+ if(checkSight())return;
  if(t===1 && GS.map==='world'){
   const z=ZONE[GS.py*WORLD_W+GS.px];
   if(z>0 && R()<.12) startWild(z-1);
  }
+}
+// --- linea di vista degli allenatori ---
+function checkSight(){
+ const m=curMap();
+ for(const n of m.npcs){
+  if(!n.trainer||n.hidden||n.guard||GS.defeated[n.trainer.id])continue;
+  const [dx,dy]=DIRS[n.dir];
+  for(let k=1;k<=5;k++){
+   const tx=n.x+dx*k, ty=n.y+dy*k;
+   if(GS.px===tx&&GS.py===ty){ startSight(n); return true; }
+   if(SOLID.has(G(m,tx,ty))||npcAt(tx,ty))break;
+  }
+ }
+ return false;
+}
+function startSight(n){ cut={n, phase:0, t:0}; GS.mode='cut'; sfx('a'); }
+function cutUpdate(dt){
+ const c=cut; if(!c){GS.mode='world';return;}
+ c.t+=dt;
+ if(c.phase===0){ if(c.t>550){ c.phase=1; c.t=170; } return; }
+ const n=c.n;
+ const dx=GS.px-n.x, dy=GS.py-n.y;
+ if(Math.abs(dx)+Math.abs(dy)<=1){
+  n.dir = dy>0?2: dy<0?0: dx>0?1:3;
+  GS.dir=(n.dir+2)%4;
+  const tr=n.trainer;
+  cut=null; GS.mode='world';
+  say(tr.name+': "'+tr.t+'"', ()=>startTrainerBattle(tr));
+  return;
+ }
+ if(c.t>=170){
+  c.t=0;
+  if(Math.abs(dx)>Math.abs(dy)){ n.x+=Math.sign(dx); n.dir=dx>0?1:3; }
+  else { n.y+=Math.sign(dy); n.dir=dy>0?2:0; }
+ }
+}
+// --- rivale Milo: 3 battaglie lungo la storia ---
+const RIVAL_CNT={1:[4,5,6],4:[7,8,9],7:[1,2,3]};
+const RIVAL_BATTLES=[
+ {id:'rival1', x0:25,x1:31, y0:180,y1:184, badges:0, money:600,
+  party:s=>[[RIVAL_CNT[s][0],8],[10,6]],
+  t:'Milo: "Eccoti, cugino di scelte facili! Il mio nuovo compagno scalpita: vediamo chi ha scelto meglio dal laboratorio dello zio!"',
+  l:'Uff... hai solo avuto fortuna. Ci rivediamo più avanti!'},
+ {id:'rival2', x0:83,x1:89, y0:120,y1:125, badges:2, money:1600,
+  party:s=>[[13,18],[20,18],[RIVAL_CNT[s][1],20]],
+  t:'Milo: "Di nuovo tu! Due medaglie anch\'io, e stavolta mi sono allenato sul serio!"',
+  l:'Anche stavolta... incredibile. Ma alla Lega sarà diverso!'},
+ {id:'rival3', x0:118,x1:124, y0:38,y1:42, badges:8, money:4000,
+  party:s=>[[14,40],[22,41],[52,40],[RIVAL_CNT[s][2],42]],
+  t:'Milo: "La Via della Lega! Sapevo che saresti arrivato fin qui. Prima della Lega, dovrai superare ME!"',
+  l:'...Vai. Il titolo di Campione può essere solo tuo. Rendici fieri!'}
+];
+function checkRival(){
+ if(GS.map!=='world')return false;
+ for(const rb of RIVAL_BATTLES){
+  if(GS.defeated[rb.id])continue;
+  if(GS.badges.length<rb.badges)continue;
+  if(GS.px>=rb.x0&&GS.px<=rb.x1&&GS.py>=rb.y0&&GS.py<=rb.y1){
+   const st=GS.flags.starterId||1;
+   const tr={id:rb.id,name:'Rivale Milo',party:rb.party(st),money:rb.money,t:rb.t,l:rb.l};
+   say(rb.t,()=>startTrainerBattle(tr));
+   return true;
+  }
+ }
+ return false;
 }
 function doWarp(w){
  fadeOut(()=>{ GS.map=w.map; GS.px=w.x; GS.py=w.y; GS.moving=false;
@@ -1093,7 +1193,11 @@ function menuInput(ev){
    if(M.ctx==='world')menuState={kind:'start',sel:1};
    else if(M.ctx==='item')menuState={kind:'bag',sel:M.bagSel||0,ctx:M.itemCtx};
    else if(M.ctx==='switch'&&M.force){/* switch obbligatorio: non si annulla */}
-   else if(M.ctx==='switch'){menuState=null;GS.mode='battle';battleMenuBack();}
+   else if(M.ctx==='switch'){
+    menuState=null;GS.mode='battle';
+    if(battle&&battle.freeSwitch){ battle.freeSwitch=false; sendNextFoe(); }
+    else battleMenuBack();
+   }
   }
   else if(ev==='A'){
    sfx('a');
@@ -1155,7 +1259,7 @@ function menuInput(ev){
    const ids=[1,4,7], id=ids[M.sel];
    sfx('catch');
    const mon=mkMon(id,5);
-   GS.party.push(mon); GS.flags.starter=true;
+   GS.party.push(mon); GS.flags.starter=true; GS.flags.starterId=id;
    GS.dex.seen[id]=1; GS.dex.caught[id]=1;
    menuState=null;
    say('Hai scelto '+SP(id).n+'! Il Prof. Cedro ti regala anche 5 Valsfere e 3 Pozioni. Che il viaggio abbia inizio!',()=>{GS.mode='world';});
@@ -1190,6 +1294,11 @@ function menuInput(ev){
    }
    M.sel=0;
   }
+ }
+ else if(M.kind==='yesno'){
+  if(ev==='U'||ev==='D'){M.sel=1-(M.sel||0);sfx('menu');}
+  else if(ev==='A'){ sfx('a'); const f=(M.sel||0)===0?M.yes:M.no; menuState=null; f(); }
+  else if(ev==='B'){ sfx('b'); const f=M.no; menuState=null; f(); }
  }
  else if(M.kind==='learn'){
   if(ev==='U'){M.sel=(M.sel+4)%5;sfx('menu');}
@@ -1245,12 +1354,13 @@ function update(dt){
  if(GS.mode==='title'){ if(ev==='A'||ev==='S'){ titleAction(); } return; }
  if(GS.mode==='dialog'){ if(ev==='A'||ev==='B'){ advanceDialog(); sfx('a'); } if(dialogQ)dialogQ.t+=dt; if(dialogQ)dialogQ.shown+=dt*.06; return; }
  if(GS.mode==='menu'){ menuInput(ev); return; }
+ if(GS.mode==='cut'){ cutUpdate(dt); return; }
  if(GS.mode==='battle'){ battleUpdate(dt, ev); return; }
  if(GS.mode==='world'){
   if(ev==='S'){ openStartMenu(); return; }
   if(ev==='A'){ interact(); return; }
   if(GS.moving){
-   GS.mvt+=dt/180;
+   GS.mvt+=dt/(GS.jump?340:180);
    if(GS.mvt>=1){ arrive(); }
   } else {
    const d=heldDir();
@@ -1271,9 +1381,17 @@ function draw(){
   drawFade(); return;
  }
  drawWorld();
+ if(GS.mode==='cut'&&cut)drawSightMark();
  if(GS.mode==='dialog')drawDialog();
  if(GS.mode==='menu')drawMenu();
  drawFade();
+}
+function drawSightMark(){
+ const [ox,oy]=camPos();
+ const n=cut.n;
+ const x=n.x*TD-ox, y=n.y*TD-oy-46;
+ box(x+2,y,26,28);
+ txt('!',x+11,y+5,'#c03028',17);
 }
 function drawFade(){
  const f=Math.abs(fade);
@@ -1308,6 +1426,7 @@ function drawWorld(){
  // giocatore (posizione interpolata)
  let pxx=GS.px, pyy=GS.py;
  if(GS.moving){ const t=GS.mvt; pxx=GS.px+(GS.mvx-GS.px)*t; pyy=GS.py+(GS.mvy-GS.py)*t; }
+ if(GS.moving&&GS.jump)pyy-=Math.sin(Math.min(1,GS.mvt)*Math.PI)*0.6;
  const frame=GS.moving? (Math.floor(GS.anim/140)%2+1):0;
  // edifici, NPC e giocatore ordinati per profondità (painter's algorithm)
  const dl=[];
@@ -1414,8 +1533,8 @@ function drawMenu(){
    let tx=220;
    for(const t of sp.t){ ctx.fillStyle=TYPES[t].c; ctx.fillRect(tx,172,64,16); txt(TYPES[t].n,tx+4,174,'#fff',11); tx+=70; }
    if(GS.dex.caught[sp.id]){
-    txt('PS:'+sp.bs[0]+' ATT:'+sp.bs[1],220,200);
-    txt('DIF:'+sp.bs[2]+' VEL:'+sp.bs[3],220,218);
+    txt('PS:'+sp.bs[0]+' ATT:'+sp.bs[1]+' DIF:'+sp.bs[2],220,200,'#303030',12);
+    txt('ATSP:'+sp.bs[3]+' DFSP:'+sp.bs[4]+' VEL:'+sp.bs[5],220,218,'#303030',12);
     txt(sp.ev?('Si evolve al liv. '+sp.ev.lv):'Non si evolve',220,240,'#385890',12);
    } else txt('Catturalo per i dettagli!',220,200,'#909090',12);
   } else txt('???',270,90,'#909090',30);
@@ -1451,9 +1570,10 @@ function drawMenu(){
   drawMon(ctx,mon.id,40,40,96,96);
   txt(sp.n+'   Liv.'+mon.lv,40,150,'#303030',16);
   let tx=40; for(const t of sp.t){ ctx.fillStyle=TYPES[t].c; ctx.fillRect(tx,176,64,16); txt(TYPES[t].n,tx+4,178,'#fff',11); tx+=70; }
-  txt('PS  '+mon.hp+'/'+mon.maxhp,40,204);
-  txt('ATT '+mon.atk+'   DIF '+mon.def+'   VEL '+mon.spe,40,224);
-  txt('Esp. '+mon.exp+'  (prossimo liv: '+(expForLv(mon.lv+1)-mon.exp)+')',40,244);
+  txt('PS  '+mon.hp+'/'+mon.maxhp,40,202);
+  txt('ATT '+mon.atk+'  DIF '+mon.def+'  VEL '+mon.spe,40,220,'#303030',12);
+  txt('ATSP '+mon.spa+'  DFSP '+mon.spd,40,237,'#303030',12);
+  txt('Esp. '+mon.exp+'  (prossimo liv: '+(expForLv(mon.lv+1)-mon.exp)+')',40,255,'#303030',11);
   txt('MOSSE',240,40,'#385890',14);
   mon.moves.forEach((mv,i)=>{
    const mo=MOVES[mv.k];
@@ -1523,6 +1643,15 @@ function drawMenu(){
    txt(SP(mon.id).n+' L'+mon.lv,272,y,'#303030',12);
   });
  }
+ else if(M.kind==='yesno'){
+  if(battle)drawBattle(); else drawWorldBehind();
+  box(100,VH-160,VW-200,84);
+  wrapText(M.q,34).slice(0,2).forEach((l,i)=>txt(l,116,VH-146+i*16,'#303030',12));
+  ['SÌ','NO'].forEach((o,i)=>{
+   if((M.sel||0)===i)txt('▶',150+i*90,VH-104,'#c03028');
+   txt(o,166+i*90,VH-104,'#303030',13);
+  });
+ }
  else if(M.kind==='learn'){
   if(battle)drawBattle();
   box(60,40,VW-120,VH-80);
@@ -1556,7 +1685,7 @@ function startWildMon(mon, routeIdx){
  GS.dex.seen[mon.id]=1;
  const yi=firstAlive(); if(yi<0)return;
  battle={kind:'wild', foe:mon, you:GS.party[yi], queue:[], phase:'msg', menuSel:0, fightSel:0,
-   dhpY:GS.party[yi].hp, dhpF:mon.hp, vhpY:GS.party[yi].hp, vhpF:mon.hp, shake:0, pendingEvo:[]};
+   dhpY:GS.party[yi].hp, dhpF:mon.hp, vhpY:GS.party[yi].hp, vhpF:mon.hp, shake:0, pendingEvo:[], parts:new Set([yi])};
  resetStages(battle.you); resetStages(mon);
  GS.mode='battle'; sfx('super'); playMusic('battle');
  bqa('Un '+SP(mon.id).n+' selvatico! (Liv.'+mon.lv+')','sendF',400);
@@ -1568,7 +1697,7 @@ function startTrainerBattle(tr){
  const foeParty=tr.party.map(([id,lv])=>mkMon(id,lv));
  battle={kind:'trainer', trainer:tr, foeParty, foeIdx:0, foe:foeParty[0], you:GS.party[yi],
    queue:[], phase:'msg', menuSel:0, fightSel:0, dhpY:GS.party[yi].hp, dhpF:foeParty[0].hp,
-   vhpY:GS.party[yi].hp, vhpF:foeParty[0].hp, shake:0, pendingEvo:[]};
+   vhpY:GS.party[yi].hp, vhpF:foeParty[0].hp, shake:0, pendingEvo:[], parts:new Set([yi])};
  resetStages(battle.you); resetStages(battle.foe);
  GS.dex.seen[battle.foe.id]=1;
  GS.mode='battle'; sfx('super'); playMusic('battle');
@@ -1576,7 +1705,7 @@ function startTrainerBattle(tr){
  bqa(tr.name+' manda in campo '+SP(battle.foe.id).n+'!','sendF',400);
  bqa('Vai, '+SP(battle.you.id).n+'!','sendY',400,null,()=>{ battle.phase='menu'; });
 }
-function resetStages(m){ m.stages={atk:0,def:0,spe:0}; m.slpTurns=0; }
+function resetStages(m){ m.stages={atk:0,def:0,spa:0,spd:0,spe:0}; m.slpTurns=0; }
 function bq(txt, fn, after){ battle.queue.push({txt, fn, after, applied:false}); battle.phase='msg'; }
 function bqa(txt,type,dur,fn,after){ battle.queue.push({txt,anim:{type,dur},fn,after,applied:false}); battle.phase='msg'; }
 function bqanim(type,dur,fn,after){ battle.queue.push({txt:null,anim:{type,dur},fn,after,applied:false}); battle.phase='msg'; }
@@ -1594,6 +1723,8 @@ function drawBall(g,x,y,r,tilt){
 function stageMult(s){ return s>=0? (2+s)/2 : 2/(2-s); }
 function effAtk(m){ let a=m.atk*stageMult(m.stages.atk); if(m.status==='BRN')a*=.5; return a; }
 function effDef(m){ return m.def*stageMult(m.stages.def); }
+function effSpa(m){ return m.spa*stageMult(m.stages.spa); }
+function effSpd(m){ return m.spd*stageMult(m.stages.spd); }
 function effSpe(m){ let s=m.spe*stageMult(m.stages.spe); if(m.status==='PAR')s*=.25; return s; }
 
 function battleMenuBack(){ if(battle)battle.phase='menu'; }
@@ -1672,6 +1803,14 @@ function battleItemUsed(){ GS.mode='battle'; foeTurnOnly(); }
 function doSwitch(idx){
  const b=battle;
  menuState=null; GS.mode='battle';
+ if(b.parts)b.parts.add(idx);
+ if(b.freeSwitch){
+  b.freeSwitch=false;
+  b.you=GS.party[idx]; resetStages(b.you); b.dhpY=b.you.hp; b.vhpY=b.you.hp;
+  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ b.youDown=false; });
+  sendNextFoe();
+  return;
+ }
  if(b.forceSwitch){
   b.forceSwitch=false;
   b.you=GS.party[idx]; resetStages(b.you); b.dhpY=b.you.hp; b.vhpY=b.you.hp;
@@ -1758,7 +1897,10 @@ function execMove(user,tgt,mv,isYou){
    if(eff===0){ bq('Non ha alcun effetto su '+tn+'...'); break; }
    const crit=R()<(mo.hc?1/8:1/16);
    const stab=SP(user.id).t.includes(mo.t)?1.5:1;
-   let dmg=Math.floor(Math.floor((2*user.lv/5+2)*mo.p*effAtk(user)/Math.max(1,effDef(tgt))/50)+2);
+   const specialMove=SPECIAL_TYPES.has(mo.t);
+   const A=specialMove?effSpa(user):effAtk(user);
+   const D=specialMove?effSpd(tgt):effDef(tgt);
+   let dmg=Math.floor(Math.floor((2*user.lv/5+2)*mo.p*A/Math.max(1,D)/50)+2);
    dmg=Math.floor(dmg*stab*eff*(crit?2:1)*(217+Math.floor(R()*39))/255);
    dmg=Math.max(1,dmg);
    const applied=Math.min(tgt.hp,dmg);
@@ -1799,7 +1941,7 @@ function execMove(user,tgt,mv,isYou){
  // KO
  if(tgt.hp<=0)handleFaint(tgt,isYou);
 }
-const STAT_N={atk:'Attacco',def:'Difesa',spe:'Velocità'};
+const STAT_N={atk:'Attacco',def:'Difesa',spa:'Att. Speciale',spd:'Dif. Speciale',spe:'Velocità'};
 const ST_MSG={PSN:'è avvelenato!',PAR:'è paralizzato!',SLP:'si addormenta!',BRN:'è scottato!',FRZ:'è congelato!'};
 function applyStatus(m,st,isFoe){
  m.status=st;
@@ -1838,14 +1980,27 @@ function handleFaint(m,wasTargetOfYou){
 }
 function foeFainted(){
  const b=battle;
- // esperienza
+ // esperienza divisa tra i partecipanti ancora in forze
  const sp=SP(b.foe.id);
- const gain=Math.max(1,Math.floor(sp.bx*b.foe.lv/7*(b.kind==='trainer'?1.5:1)));
- const mon=b.you;
- mon.exp+=gain;
- bq(SP(mon.id).n+' guadagna '+gain+' Esp.!');
- checkLevelUps(mon);
+ const total=Math.max(1,Math.floor(sp.bx*b.foe.lv/7*(b.kind==='trainer'?1.5:1)));
+ let list=[...(b.parts||[])].map(i=>GS.party[i]).filter(m=>m&&m.hp>0);
+ if(!list.length)list=[b.you];
+ const each=Math.max(1,Math.floor(total/list.length));
+ for(const mon of list){
+  mon.exp+=each;
+  bq(SP(mon.id).n+' guadagna '+each+' Esp.!');
+  checkLevelUps(mon);
+ }
  afterFoeFaint();
+}
+function sendNextFoe(){
+ const b=battle; if(!b)return;
+ b.foeIdx++;
+ b.foe=b.foeParty[b.foeIdx];
+ resetStages(b.foe);
+ GS.dex.seen[b.foe.id]=1;
+ b.parts=new Set([GS.party.indexOf(b.you)]);
+ bqa(b.trainer.name+' manda in campo '+SP(b.foe.id).n+'!','sendF',400,()=>{ b.dhpF=b.foe.hp; b.vhpF=b.foe.hp; b.foeDown=false; b.foeHidden=false; },()=>{ b.phase='menu'; });
 }
 function checkLevelUps(mon){
  while(mon.lv<100&&mon.exp>=expForLv(mon.lv+1)){
@@ -1875,11 +2030,18 @@ function checkLevelUps(mon){
 function afterFoeFaint(){
  const b=battle;
  if(b.kind==='trainer'&&b.foeIdx<b.foeParty.length-1){
-  b.foeIdx++;
-  b.foe=b.foeParty[b.foeIdx];
-  resetStages(b.foe);
-  GS.dex.seen[b.foe.id]=1;
-  bqa(b.trainer.name+' manda in campo '+SP(b.foe.id).n+'!','sendF',400,()=>{ b.dhpF=b.foe.hp; b.vhpF=b.foe.hp; b.foeDown=false; b.foeHidden=false; },()=>{ b.phase='menu'; });
+  const nxt=SP(b.foeParty[b.foeIdx+1].id).n;
+  const alive=GS.party.filter(m=>m.hp>0).length;
+  if(alive>1){
+   bq(b.trainer.name+' sta per mandare in campo '+nxt+'.',null,()=>{
+    menuState={kind:'yesno',sel:0,q:'Vuoi cambiare creatura?',
+     yes:()=>{ battle.freeSwitch=true; menuState={kind:'party',sel:0,ctx:'switch'}; },
+     no:()=>{ GS.mode='battle'; sendNextFoe(); }};
+    GS.mode='menu';
+   });
+  } else {
+   bq(b.trainer.name+' sta per mandare in campo '+nxt+'.',null,sendNextFoe);
+  }
  } else if(b.kind==='trainer'){
   // vittoria contro allenatore
   const tr=b.trainer;
@@ -1966,7 +2128,7 @@ function throwBall(k){
  if(caught){
   const wasFull=GS.party.length>=6;
   GS.dex.caught[m.id]=1; GS.dex.seen[m.id]=1;
-  m.stages={atk:0,def:0,spe:0}; m.faintQueued=false;
+  m.stages={atk:0,def:0,spa:0,spd:0,spe:0}; m.faintQueued=false;
   if(!wasFull)GS.party.push(m); else GS.box.push(m);
   bqanim('caught',700,()=>{ if(battle)battle.ballRest=true; sfx('catch'); });
   bq(sp.n+' è stato catturato!');
@@ -2213,7 +2375,7 @@ function selfTest(){
   if(sp.ev&&sp.ev.to===sp.id)errs.push(sp.n+': si evolve in sé stesso');
   if(!sp.mv.some(([lv,k])=>lv===1&&MOVES[k]&&MOVES[k].p>0))errs.push(sp.n+': nessuna mossa offensiva al liv.1');
   for(const t of sp.t)if(!TYPES[t])errs.push(sp.n+': tipo inesistente '+t);
-  if(sp.bs.length!==4)errs.push(sp.n+': statistiche mancanti');
+  if(sp.bs.length!==6)errs.push(sp.n+': statistiche mancanti');
  }
  const checkParty=(who,party)=>{ for(const [id,lv] of party){ if(!DEX[id-1])errs.push(who+': specie inesistente '+id); if(lv<1||lv>100)errs.push(who+': livello errato'); } };
  TOWNS.forEach((t,i)=>{ if(t.gym)checkParty('Palestra '+t.n,t.gym.party); });
