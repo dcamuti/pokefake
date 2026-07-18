@@ -46,7 +46,7 @@ const MOVES = {
  ruggito:{n:'Ruggito',t:'NOR',p:0,a:100,pp:40,fx:{stat:'atk',d:-1,tgt:'foe'}},
  fortifica:{n:'Fortifica',t:'NOR',p:0,a:0,pp:30,fx:{stat:'def',d:1,tgt:'self'}},
  rapido:{n:'Attacco Rapido',t:'NOR',p:40,a:100,pp:30,pr:1},
- morso:{n:'Morso',t:'NOR',p:60,a:100,pp:25},
+ morso:{n:'Morso',t:'NOR',p:60,a:100,pp:25,fl:.3},
  cornata:{n:'Cornata',t:'NOR',p:65,a:100,pp:25},
  bodyslam:{n:'Corposcontro',t:'NOR',p:85,a:100,pp:15,fx:{st:'PAR',ch:.2}},
  iperraggio:{n:'Iperraggio',t:'NOR',p:130,a:90,pp:5},
@@ -71,7 +71,7 @@ const MOVES = {
  fulmine:{n:'Fulmine',t:'ELE',p:90,a:100,pp:15,fx:{st:'PAR',ch:.1}},
  tuono:{n:'Tuono',t:'ELE',p:110,a:70,pp:10,fx:{st:'PAR',ch:.3}},
  tuononda:{n:'Tuononda',t:'ELE',p:0,a:90,pp:20,fx:{st:'PAR'}},
- fangata:{n:'Fangata',t:'TER',p:55,a:100,pp:15,fx:{stat:'spe',d:-1,tgt:'foe',ch:.3}},
+ fangata:{n:'Fangata',t:'TER',p:55,a:100,pp:15,fx:{stat:'acc',d:-1,tgt:'foe',ch:1}},
  zampata:{n:'Zampata',t:'TER',p:60,a:100,pp:20},
  terremoto:{n:'Terremoto',t:'TER',p:100,a:100,pp:10},
  beccata:{n:'Beccata',t:'VOL',p:35,a:100,pp:35},
@@ -84,7 +84,7 @@ const MOVES = {
  frana:{n:'Frana',t:'ROC',p:75,a:90,pp:10},
  lingualunga:{n:'Lingualunga',t:'SPE',p:30,a:100,pp:30,fx:{st:'PAR',ch:.2}},
  ombrartiglio:{n:'Ombrartiglio',t:'SPE',p:70,a:100,pp:15,hc:1},
- psicoraggio:{n:'Psicoraggio',t:'PSI',p:65,a:100,pp:20},
+ psicoraggio:{n:'Psicoraggio',t:'PSI',p:65,a:100,pp:20,fx:{cf:.15}},
  psichico:{n:'Psichico',t:'PSI',p:90,a:100,pp:10,fx:{stat:'spd',d:-1,tgt:'foe',ch:.1}},
  ipnosi:{n:'Ipnosi',t:'PSI',p:0,a:60,pp:20,fx:{st:'SLP'}},
  agilita:{n:'Agilità',t:'PSI',p:0,a:0,pp:30,fx:{stat:'spe',d:2,tgt:'self'}},
@@ -427,9 +427,30 @@ function buildWorld(){
   T(w,p[0],p[1],3);
   w.npcs.push({x:p[0],y:p[1],dir:2,spr:4,guard:true,text:'Questa è la Via della Lega! Possono passare solo gli allenatori con tutte le 8 medaglie di Valmora.'});
  }
+ // Team Ombra: reclute a Ondaporto (compaiono dopo la 1ª medaglia)
+ {
+  const t2=TOWNS[2];
+  const mkO=(id,x,y,party,txt,lose)=>({x,y,dir:2,spr:'E',cls:'ombra',
+    cond:()=>GS.badges.length>=1&&!GS.flags.ombra1,
+    trainer:{id,name:'Recluta Ombra',party,money:500,t:txt,l:lose}});
+  w.npcs.push(mkO('ombra1a',t2.x-4,t2.y-1,[[42,13],[36,13]],
+   'Il Team Ombra si prende ciò che vuole! Anche questo Market!','Ritirata strategica...'));
+  w.npcs.push(mkO('ombra1b',t2.x+4,t2.y-1,[[29,14],[10,13]],
+   'Non impicciarti degli affari del Team Ombra, moccioso!','Il capo non deve saperlo!'));
+ }
+ // covo del Team Ombra a nord-est di Tossinia
+ {
+  const t5=TOWNS[5];
+  const dx=t5.x+11, dy=t5.y-7;
+  T(w,dx-1,dy,2); T(w,dx+1,dy,2); T(w,dx,dy,8);
+  w.warps[dx+','+dy]={map:'covo',x:7,y:11};
+  T(w,dx-2,dy+1,7);
+  w.signs[(dx-2)+','+(dy+1)]='COVO DEL TEAM OMBRA — VIETATO L\'INGRESSO! (soprattutto ai mocciosi con le medaglie)';
+ }
  // altare di Solverio vicino alla Lega
  { const ax=TOWNS[9].x+8, ay=TOWNS[9].y+8; T(w,ax,ay,20); w.signs[ax+','+ay]='ALTARE'; }
  buildInteriors();
+ buildCovo();
 }
 function townChat(ti){
  const c=[
@@ -497,6 +518,15 @@ function buildInteriors(){
    lg.npcs.push({x:6,y:3,dir:2,spr:'C',cls:'campione',blockUntilBeat:true,trainer:{id:'champion',name:CHAMPION.name,party:CHAMPION.party,money:CHAMPION.money,t:CHAMPION.t,l:CHAMPION.l,champion:true}});
   }
  }
+}
+function buildCovo(){
+ const cv2=stdInterior('covo',15,13);
+ for(const p of [[3,3],[11,3],[3,8],[11,8]])T(cv2,p[0],p[1],18);
+ T(cv2,7,12,12); cv2.warps['7,12']={map:'world',x:TOWNS[5].x+11,y:TOWNS[5].y-6};
+ cv2.npcs.push({x:4,y:5,dir:1,spr:'E',cls:'ombra',trainer:{id:'ombraC1',name:'Recluta Ombra',party:[[43,26],[37,26]],money:900,t:'Come sei entrato?! Fuori di qui!',l:'Il capo mi degrada di sicuro...'}});
+ cv2.npcs.push({x:10,y:5,dir:3,spr:'E',cls:'ombra',trainer:{id:'ombraC2',name:'Recluta Ombra',party:[[31,27],[36,26]],money:900,t:'Qui prepariamo il risveglio del custode Solverio!',l:'Ho... ho parlato troppo.'}});
+ cv2.npcs.push({x:7,y:8,dir:2,spr:'E',cls:'ombra',trainer:{id:'ombraC3',name:'Recluta Ombra',party:[[11,27],[42,26],[29,27]],money:900,t:'Nessuno disturba l\'Ammiraglia Vipera!',l:'V-Vipera... aiuto...'}});
+ cv2.npcs.push({x:7,y:2,dir:2,spr:'C',cls:'ombra',trainer:{id:'ombraAdmin',name:'Ammiraglia Vipera',party:[[37,30],[43,30],[31,32]],money:2500,t:'Il Team Ombra risveglierà Solverio, e con il custode domineremo Valmora! Non puoi fermare il capo Nox!',l:'Nox... perdonami. Ci vediamo all\'altare del custode, moccioso: porta 7 medaglie e capirai tutto.'}});
 }
 function houseChat(ti){
  const c=[
@@ -854,14 +884,14 @@ function drawActor(g,sx,sy,dir,frame,pal){
 const GS = {
  mode:'title', map:'world', px:0, py:0, dir:2, moving:false, mvx:0, mvy:0, mvt:0,
  party:[], box:[], bag:{sfera:5,pozione:3}, money:3000, badges:[], defeated:{}, flags:{},
- dex:{seen:{},caught:{}}, steps:0, anim:0, name:'ALEX'
+ dex:{seen:{},caught:{}}, steps:0, anim:0, name:'ALEX', fx:[]
 };
 let dialogQ=null, menuState=null, battle=null, fade=0, fadeCb=null, cut=null;
 
 function statCalc(base,lv,isHp){ return isHp? Math.floor(base*2*lv/100)+lv+10 : Math.floor(base*2*lv/100)+5; }
 function mkMon(id,lv){
  const sp=SP(id);
- const m={id, lv, exp:lv*lv*lv, status:null, stages:{atk:0,def:0,spa:0,spd:0,spe:0}, moves:[]};
+ const m={id, lv, exp:lv*lv*lv, status:null, stages:{atk:0,def:0,spa:0,spd:0,spe:0,acc:0,eva:0}, moves:[]};
  const learn=sp.mv.filter(x=>x[0]<=lv).slice(-4);
  for(const [,k] of learn) m.moves.push({k, pp:MOVES[k].pp});
  recalcStats(m); m.hp=m.maxhp;
@@ -882,7 +912,8 @@ function expForLv(lv){ return lv*lv*lv; }
 
 function curMap(){ return MAPS[GS.map]; }
 function tileAt(x,y){ return G(curMap(),x,y); }
-function npcAt(x,y){ return curMap().npcs.find(n=>n.x===x&&n.y===y && !(n.hidden)); }
+function npcActive(n){ return !n.hidden && (!n.cond||n.cond()); }
+function npcAt(x,y){ return curMap().npcs.find(n=>n.x===x&&n.y===y && npcActive(n)); }
 function isBlocked(x,y){
  const t=tileAt(x,y);
  if(SOLID.has(t))return true;
@@ -909,6 +940,7 @@ function arrive(){
  const wkey=GS.px+','+GS.py;
  const warp=curMap().warps[wkey];
  if((t===8||t===12)&&warp){ doWarp(warp); return; }
+ if(t===1)GS.fx.push({x:GS.px,y:GS.py,t0:GS.anim});
  if(checkRival())return;
  if(checkSight())return;
  if(t===1 && GS.map==='world'){
@@ -920,7 +952,7 @@ function arrive(){
 function checkSight(){
  const m=curMap();
  for(const n of m.npcs){
-  if(!n.trainer||n.hidden||n.guard||GS.defeated[n.trainer.id])continue;
+  if(!n.trainer||!npcActive(n)||n.guard||GS.defeated[n.trainer.id])continue;
   const [dx,dy]=DIRS[n.dir];
   for(let k=1;k<=5;k++){
    const tx=n.x+dx*k, ty=n.y+dy*k;
@@ -1026,8 +1058,18 @@ function npcAction(n){
  say(n.text||'...');
 }
 function altare(){
+ if(!GS.flags.teamDone){
+  if(GS.badges.length<7){
+   say('Una figura incappucciata scruta l\'altare da lontano e sparisce tra gli alberi... Qualcosa di grosso si prepara. (Si dice che con 7 medaglie i grandi eventi si rivelino.)');
+   return;
+  }
+  say('Nox, capo del Team Ombra: "Finalmente! Il custode Solverio si risveglierà per ME! Tu... le tue medaglie non ti salveranno!"',
+   ()=>startTrainerBattle({id:'ombraBoss',name:'Capo Nox',party:[[43,44],[37,44],[31,45],[48,46]],money:6000,
+     t:'x',l:'Impossibile... il custode non mi ha scelto... Forse, ragazzo... sceglierà te.'}));
+  return;
+ }
  if(GS.flags.solverio){ say('L\'altare è silenzioso. La leggenda si è già compiuta.'); return; }
- say('Una luce accecante avvolge l\'altare... SOLVERIO, il custode di Valmora, si risveglia!', ()=>{
+ say('Una luce accecante avvolge l\'altare... SOLVERIO, il custode di Valmora, ti riconosce e si risveglia!', ()=>{
   GS.flags.solverio=true;
   startWildMon(mkMon(54,50), 8);
  });
@@ -1102,6 +1144,54 @@ function heldDir(){
 
 // ---------- suoni (WebAudio) ----------
 const SND={ctx:null,mute:false};
+const JINGLES={
+ lvl:[[523,90],[659,90],[784,90],[1047,180]],
+ catch:[[392,80],[523,80],[659,80],[784,240]],
+ badge:[[523,110],[523,60],[659,110],[784,110],[1047,280]],
+ heal:[[880,90],[988,90],[1175,200]],
+ evolve:[[440,80],[554,80],[659,80],[880,80],[1109,240]],
+ victory:[[784,100],[784,60],[784,60],[784,100],[622,130],[698,130],[784,90],[698,60],[784,300]]
+};
+function playJingle(notes){
+ try{
+  if(!SND.ctx)SND.ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const ac=SND.ctx; let t=ac.currentTime;
+  for(const nd of notes){
+   const o=ac.createOscillator(), g=ac.createGain();
+   o.type='square'; o.frequency.setValueAtTime(nd[0],t);
+   g.gain.setValueAtTime(.07,t);
+   g.gain.exponentialRampToValueAtTime(.001,t+nd[1]/1000);
+   o.connect(g); g.connect(ac.destination);
+   o.start(t); o.stop(t+nd[1]/1000+.01);
+   t+=nd[1]/1000*0.92;
+  }
+ }catch(e){}
+}
+function cry(id,faint){
+ if(SND.mute)return;
+ try{
+  if(!SND.ctx)SND.ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const ac=SND.ctx, rng=mulberry32((id*2654435761)%2147483647);
+  let t=ac.currentTime;
+  const segs=2+Math.floor(rng()*3);
+  const sp=SP(id);
+  const heavy=(sp.bs[0]+sp.bs[1])/2;
+  const base=(1150-heavy*6)*(faint?0.55:1);
+  for(let i=0;i<segs;i++){
+   const o=ac.createOscillator(), g=ac.createGain();
+   o.type=['square','sawtooth','triangle'][Math.floor(rng()*3)];
+   const f=Math.max(90,base*(0.7+rng()*0.8));
+   const d=(0.05+rng()*0.09)*(faint?1.7:1);
+   o.frequency.setValueAtTime(f,t);
+   o.frequency.linearRampToValueAtTime(Math.max(60,f*(0.6+rng()*0.9)),t+d);
+   g.gain.setValueAtTime(.09,t);
+   g.gain.exponentialRampToValueAtTime(.001,t+d);
+   o.connect(g); g.connect(ac.destination);
+   o.start(t); o.stop(t+d+.01);
+   t+=d*0.9;
+  }
+ }catch(e){}
+}
 const SFXF={};
 function sfx(kind){
  if(SND.mute)return;
@@ -1135,6 +1225,7 @@ function musicKick(){ if(!MUSIC.started){ MUSIC.started=true; if(MUSIC.name)play
 function updateMute(){ if(SND.mute){ if(MUSIC.cur)MUSIC.cur.pause(); } else if(MUSIC.cur&&!MUSIC.cur.bad)MUSIC.cur.play().catch(()=>{}); }
 function beep(kind){
  if(SND.mute)return;
+ if(JINGLES[kind]){ playJingle(JINGLES[kind]); return; }
  try{
   if(!SND.ctx)SND.ctx=new (window.AudioContext||window.webkitAudioContext)();
   const ac=SND.ctx, o=ac.createOscillator(), g=ac.createGain();
@@ -1183,6 +1274,7 @@ function menuInput(ev){
   if(ev==='U'){M.sel=Math.max(0,M.sel-1);sfx('menu');}
   else if(ev==='D'){M.sel=Math.min(DEX.length-1,M.sel+1);sfx('menu');}
   else if(ev==='B'){menuState={kind:'start',sel:0};sfx('b');}
+  else if(ev==='A'){ const sp2=DEX[M.sel]; if(GS.dex.seen[sp2.id])cry(sp2.id); }
  }
  else if(M.kind==='party'){
   const n=GS.party.length;
@@ -1360,7 +1452,8 @@ function update(dt){
   if(ev==='S'){ openStartMenu(); return; }
   if(ev==='A'){ interact(); return; }
   if(GS.moving){
-   GS.mvt+=dt/(GS.jump?340:180);
+   const corsa=(keys['Shift']||keys['x']||keys['X'])&&!GS.jump;
+   GS.mvt+=dt/(GS.jump?340:(corsa?105:180));
    if(GS.mvt>=1){ arrive(); }
   } else {
    const d=heldDir();
@@ -1375,6 +1468,7 @@ function draw(){
  ctx.fillStyle='#000'; ctx.fillRect(0,0,VW,VH);
  if(GS.mode==='title'){ drawTitle(); drawFade(); return; }
  if(GS.mode==='battle'||battle){
+  if(battle&&battle.intro>0){ drawWorld(); drawBattleIntro(); drawFade(); return; }
   drawBattle();
   if(GS.mode==='menu')drawMenu();
   if(GS.mode==='dialog')drawDialog();
@@ -1392,6 +1486,16 @@ function drawSightMark(){
  const x=n.x*TD-ox, y=n.y*TD-oy-46;
  box(x+2,y,26,28);
  txt('!',x+11,y+5,'#c03028',17);
+}
+function drawBattleIntro(){
+ const b=battle, p=1-b.intro/800;
+ if(p<0.4){
+  if(Math.floor(b.intro/70)%2===0){ ctx.fillStyle='rgba(255,255,255,.75)'; ctx.fillRect(0,0,VW,VH); }
+ } else {
+  const r=(p-0.4)/0.6*Math.hypot(VW,VH)/2*1.15;
+  ctx.fillStyle='#000';
+  ctx.beginPath(); ctx.arc(VW/2,VH/2,r,0,7); ctx.fill();
+ }
 }
 function drawFade(){
  const f=Math.abs(fade);
@@ -1423,6 +1527,20 @@ function drawWorld(){
   if(TILESET.ok&&TILESET.map[tk]!==undefined)ctx.drawImage(TILESET.img,TILESET.map[tk]*16,0,16,16,x*TD-ox,y*TD-oy,TD,TD);
   else ctx.drawImage(renderTile(t,fr), x*TD-ox, y*TD-oy, TD, TD);
  }
+ // fruscio dell'erba alta
+ if(!GS.fx)GS.fx=[];
+ GS.fx=GS.fx.filter(f=>GS.anim-f.t0<380);
+ for(const f of GS.fx){
+  const p=(GS.anim-f.t0)/380;
+  ctx.globalAlpha=1-p;
+  ctx.fillStyle='#2e7028';
+  const fx2=f.x*TD-ox+TD/2, fy2=f.y*TD-oy+TD/2;
+  for(let i=0;i<4;i++){
+   const ang=i*1.57+.6;
+   ctx.fillRect(fx2+Math.cos(ang)*(6+p*15)-2, fy2+Math.sin(ang)*(4+p*7)-p*13, 4,4);
+  }
+  ctx.globalAlpha=1;
+ }
  // giocatore (posizione interpolata)
  let pxx=GS.px, pyy=GS.py;
  if(GS.moving){ const t=GS.mvt; pxx=GS.px+(GS.mvx-GS.px)*t; pyy=GS.py+(GS.mvy-GS.py)*t; }
@@ -1439,7 +1557,7 @@ function drawWorld(){
   }});
  }
  for(const n of m.npcs){
-  if(n.hidden)continue;
+  if(!npcActive(n))continue;
   const nn=n;
   dl.push({base:n.y*TD+TD, fn:()=>drawActor(ctx,nn.x*TD-ox,nn.y*TD-oy,nn.dir,0,nn.spr)});
  }
@@ -1685,11 +1803,11 @@ function startWildMon(mon, routeIdx){
  GS.dex.seen[mon.id]=1;
  const yi=firstAlive(); if(yi<0)return;
  battle={kind:'wild', foe:mon, you:GS.party[yi], queue:[], phase:'msg', menuSel:0, fightSel:0,
-   dhpY:GS.party[yi].hp, dhpF:mon.hp, vhpY:GS.party[yi].hp, vhpF:mon.hp, shake:0, pendingEvo:[], parts:new Set([yi])};
+   dhpY:GS.party[yi].hp, dhpF:mon.hp, vhpY:GS.party[yi].hp, vhpF:mon.hp, shake:0, pendingEvo:[], parts:new Set([yi]), intro:800};
  resetStages(battle.you); resetStages(mon);
  GS.mode='battle'; sfx('super'); playMusic('battle');
- bqa('Un '+SP(mon.id).n+' selvatico! (Liv.'+mon.lv+')','sendF',400);
- bqa('Vai, '+SP(battle.you.id).n+'!','sendY',400,null,()=>{ battle.phase='menu'; });
+ bqa('Un '+SP(mon.id).n+' selvatico! (Liv.'+mon.lv+')','sendF',400,()=>cry(mon.id));
+ bqa('Vai, '+SP(battle.you.id).n+'!','sendY',400,()=>cry(battle.you.id),()=>{ battle.phase='menu'; });
 }
 function startTrainerBattle(tr){
  const yi=firstAlive();
@@ -1697,15 +1815,15 @@ function startTrainerBattle(tr){
  const foeParty=tr.party.map(([id,lv])=>mkMon(id,lv));
  battle={kind:'trainer', trainer:tr, foeParty, foeIdx:0, foe:foeParty[0], you:GS.party[yi],
    queue:[], phase:'msg', menuSel:0, fightSel:0, dhpY:GS.party[yi].hp, dhpF:foeParty[0].hp,
-   vhpY:GS.party[yi].hp, vhpF:foeParty[0].hp, shake:0, pendingEvo:[], parts:new Set([yi])};
+   vhpY:GS.party[yi].hp, vhpF:foeParty[0].hp, shake:0, pendingEvo:[], parts:new Set([yi]), intro:800};
  resetStages(battle.you); resetStages(battle.foe);
  GS.dex.seen[battle.foe.id]=1;
  GS.mode='battle'; sfx('super'); playMusic('battle');
  bq(tr.name+' ti sfida!');
- bqa(tr.name+' manda in campo '+SP(battle.foe.id).n+'!','sendF',400);
- bqa('Vai, '+SP(battle.you.id).n+'!','sendY',400,null,()=>{ battle.phase='menu'; });
+ bqa(tr.name+' manda in campo '+SP(battle.foe.id).n+'!','sendF',400,()=>cry(battle.foe.id));
+ bqa('Vai, '+SP(battle.you.id).n+'!','sendY',400,()=>cry(battle.you.id),()=>{ battle.phase='menu'; });
 }
-function resetStages(m){ m.stages={atk:0,def:0,spa:0,spd:0,spe:0}; m.slpTurns=0; }
+function resetStages(m){ m.stages={atk:0,def:0,spa:0,spd:0,spe:0,acc:0,eva:0}; m.slpTurns=0; m.conf=0; m.flinched=false; }
 function bq(txt, fn, after){ battle.queue.push({txt, fn, after, applied:false}); battle.phase='msg'; }
 function bqa(txt,type,dur,fn,after){ battle.queue.push({txt,anim:{type,dur},fn,after,applied:false}); battle.phase='msg'; }
 function bqanim(type,dur,fn,after){ battle.queue.push({txt:null,anim:{type,dur},fn,after,applied:false}); battle.phase='msg'; }
@@ -1731,6 +1849,7 @@ function battleMenuBack(){ if(battle)battle.phase='menu'; }
 
 function battleUpdate(dt, ev){
  const b=battle; if(!b)return;
+ if(b.intro>0){ b.intro-=dt; if(b.intro<0)b.intro=0; return; }
  // animazione barre PS
  const lerp=(cur,tgt)=>{ const d=tgt-cur; if(Math.abs(d)<.5)return tgt; return cur+d*Math.min(1,dt/180); };
  b.dhpY=lerp(b.dhpY,Math.max(0,b.vhpY));
@@ -1882,12 +2001,33 @@ function execMove(user,tgt,mv,isYou){
   if(R()<.2){ user.status=null; bq(tag+un+' si scongela!'); }
   else { bq(tag+un+' è congelato e non si muove!'); return; }
  }
+ if(user.flinched){ user.flinched=false; bq(tag+un+' si è impaurito e non riesce a muoversi!'); return; }
+ if(user.conf&&user.conf>0){
+  user.conf--;
+  if(user.conf<=0){ bq(tag+un+' non è più confuso!'); }
+  else {
+   bq(tag+un+' è confuso!');
+   if(R()<.5){
+    const cd=Math.max(1,Math.floor(Math.floor((2*user.lv/5+2)*40*effAtk(user)/Math.max(1,effDef(user))/50)+2));
+    user.hp=Math.max(0,user.hp-cd);
+    bq('Si colpisce da solo per la confusione!');
+    bqv(()=>{ battle.shake=250; battle.shakeTgt=isYou?'you':'foe'; sfx('hit'); });
+    visHp(user);
+    if(user.hp<=0)handleFaint(user,!isYou);
+    return;
+   }
+  }
+ }
  if(user.status==='PAR'&&R()<.25){ bq(tag+un+' è paralizzato! Non si muove!'); return; }
  mv.pp=Math.max(0,mv.pp-1);
  bq(tag+un+' usa '+mo.n+'!');
  bqanim(isYou?'lungeY':'lungeF',240);
- // precisione
- if(mo.a>0&&R()*100>mo.a){ bq('...ma fallisce!'); return; }
+ // precisione (con stadi di precisione/elusione)
+ if(mo.a>0){
+  const accS=(user.stages.acc||0)-(tgt.stages.eva||0);
+  const accM= accS>=0? (3+accS)/3 : 3/(3-accS);
+  if(R()*100>mo.a*accM){ bq('...ma fallisce!'); return; }
+ }
  if(mo.p>0){
   const hits=mo.hits||1;
   let landed=0;
@@ -1918,6 +2058,12 @@ function execMove(user,tgt,mv,isYou){
    }
   }
   if(hits>1&&landed>1)bq('Colpito '+landed+' volte!');
+  // effetti secondari: flinch e confusione
+  if(mo.fl&&landed>0&&tgt.hp>0&&R()<mo.fl)tgt.flinched=true;
+  if(mo.fx&&mo.fx.cf&&tgt.hp>0&&R()<mo.fx.cf&&!tgt.conf){
+   tgt.conf=2+Math.floor(R()*3);
+   bq((isYou?'Il nemico ':'')+tn+' è confuso!');
+  }
   // effetto secondario
   if(mo.fx&&tgt.hp>0&&mo.fx.st&&R()<(mo.fx.ch||1)&&!tgt.status){
    applyStatus(tgt,mo.fx.st,!isYou);
@@ -1941,7 +2087,7 @@ function execMove(user,tgt,mv,isYou){
  // KO
  if(tgt.hp<=0)handleFaint(tgt,isYou);
 }
-const STAT_N={atk:'Attacco',def:'Difesa',spa:'Att. Speciale',spd:'Dif. Speciale',spe:'Velocità'};
+const STAT_N={atk:'Attacco',def:'Difesa',spa:'Att. Speciale',spd:'Dif. Speciale',spe:'Velocità',acc:'Precisione',eva:'Elusione'};
 const ST_MSG={PSN:'è avvelenato!',PAR:'è paralizzato!',SLP:'si addormenta!',BRN:'è scottato!',FRZ:'è congelato!'};
 function applyStatus(m,st,isFoe){
  m.status=st;
@@ -1958,6 +2104,7 @@ function applyStage(m,stat,d,isYouSide){
 }
 function endTurnStatus(){
  const b=battle; if(!b)return;
+ b.you.flinched=false; b.foe.flinched=false;
  for(const [m,isYou] of [[b.you,true],[b.foe,false]]){
   if(m.hp<=0)continue;
   if(m.status==='PSN'||m.status==='BRN'){
@@ -1974,7 +2121,7 @@ function handleFaint(m,wasTargetOfYou){
  if(m.faintQueued)return;
  m.faintQueued=true;
  const isFoeMon = (m===b.foe)|| (b.foeParty&&b.foeParty.includes(m));
- bqanim(isFoeMon?'faintF':'faintY',450,()=>sfx('faint'),()=>{ if(!battle)return; if(isFoeMon)battle.foeDown=true; else battle.youDown=true; });
+ bqanim(isFoeMon?'faintF':'faintY',450,()=>{sfx('faint');cry(m.id,true);},()=>{ if(!battle)return; if(isFoeMon)battle.foeDown=true; else battle.youDown=true; });
  bq((isFoeMon?'Il nemico ':'')+SP(m.id).n+' è esausto!');
  if(isFoeMon)foeFainted(); else youFainted();
 }
@@ -2045,9 +2192,13 @@ function afterFoeFaint(){
  } else if(b.kind==='trainer'){
   // vittoria contro allenatore
   const tr=b.trainer;
-  bq('Hai sconfitto '+tr.name+'!');
+  bq('Hai sconfitto '+tr.name+'!',()=>sfx('victory'));
   bq(tr.name+': "'+tr.l+'"');
-  bq('Ricevi '+tr.money+'¤!',()=>{ GS.money+=tr.money; GS.defeated[tr.id]=1; });
+  bq('Ricevi '+tr.money+'¤!',()=>{
+   GS.money+=tr.money; GS.defeated[tr.id]=1;
+   if(GS.defeated['ombra1a']&&GS.defeated['ombra1b'])GS.flags.ombra1=true;
+   if(GS.defeated['ombraBoss'])GS.flags.teamDone=true;
+  });
   if(tr.badge!==undefined){
    bq('Ottieni la '+tr.badgeName+'!',()=>{ if(!GS.badges.includes(tr.badge))GS.badges.push(tr.badge); sfx('badge'); });
   }
@@ -2075,7 +2226,7 @@ function runEvolutions(evos){
   const ratio=mon.hp/mon.maxhp;
   mon.id=to.id; recalcStats(mon); mon.hp=Math.max(1,Math.floor(mon.maxhp*ratio));
   GS.dex.seen[to.id]=1; GS.dex.caught[to.id]=1;
-  sfx('badge');
+  sfx('evolve');
   say(sp.n+' si è evoluto in '+to.n+'!', ()=>runEvolutions(evos));
  });
 }
@@ -2128,7 +2279,7 @@ function throwBall(k){
  if(caught){
   const wasFull=GS.party.length>=6;
   GS.dex.caught[m.id]=1; GS.dex.seen[m.id]=1;
-  m.stages={atk:0,def:0,spa:0,spd:0,spe:0}; m.faintQueued=false;
+  m.stages={atk:0,def:0,spa:0,spd:0,spe:0,acc:0,eva:0}; m.faintQueued=false;
   if(!wasFull)GS.party.push(m); else GS.box.push(m);
   bqanim('caught',700,()=>{ if(battle)battle.ballRest=true; sfx('catch'); });
   bq(sp.n+' è stato catturato!');
