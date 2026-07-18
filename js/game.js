@@ -1264,7 +1264,12 @@ function draw(){
  ctx.imageSmoothingEnabled=false;
  ctx.fillStyle='#000'; ctx.fillRect(0,0,VW,VH);
  if(GS.mode==='title'){ drawTitle(); drawFade(); return; }
- if(GS.mode==='battle'||battle){ drawBattle(); if(GS.mode==='dialog')drawDialog(); drawFade(); return; }
+ if(GS.mode==='battle'||battle){
+  drawBattle();
+  if(GS.mode==='menu')drawMenu();
+  if(GS.mode==='dialog')drawDialog();
+  drawFade(); return;
+ }
  drawWorld();
  if(GS.mode==='dialog')drawDialog();
  if(GS.mode==='menu')drawMenu();
