@@ -182,6 +182,26 @@ const DEX = [
  S(54,'Solverio',['PSI','VOL'],[100,110,90,130],[[1,'psicoraggio'],[1,'aeroassalto'],[40,'agilita'],[50,'psichico'],[60,'iperraggio']],null,3,255)
 ];
 const SP = id=>DEX[id-1];
+const DEXTXT={
+1:'Germoglia sul dorso una foglia che profuma di rugiada.',2:'Le radici sulle zampe gli danno presa su ogni roccia.',3:'Il suo guscio fiorito ospita interi sciami di insetti amici.',
+4:'La sua coda scalda le tane nelle notti fredde.',5:'Sputa braci quando è agitato: meglio non spaventarlo.',6:'Le sue ali sollevano correnti d\'aria rovente.',
+7:'Soffia bolle che riflettono l\'arcobaleno.',8:'Nuota controcorrente per allenare le pinne.',9:'Con un pugno d\'acqua compressa buca la roccia.',
+10:'Rosicchia qualsiasi cosa per limare i denti che crescono sempre.',11:'Fa scorte di bacche che poi dimentica ovunque.',12:'Canta all\'alba per segnare il territorio.',
+13:'Plana tra i tetti a caccia di insetti.',14:'Le sue ali tagliano il vento senza alcun rumore.',15:'Fila una seta resistente come l\'acciaio.',
+16:'Nel bozzolo sogna la forma che avrà.',17:'Le sue ali spargono una polvere che fa starnutire.',18:'Cresce all\'ombra e sparge spore soporifere.',
+19:'Il suo cappello contiene un veleno usato in medicina.',20:'Accumula elettricità statica strofinandosi al pelo.',21:'Quando sfreccia lascia scie luminose.',
+22:'I suoi fulmini illuminano le notti di Voltacittà.',23:'Dorme per anni fingendosi un masso qualunque.',24:'Rotola a valle per spostarsi: attenzione ai piedi.',
+25:'Scava gallerie che crollano dietro di lui.',26:'Sente i terremoti con giorni di anticipo.',27:'Saluta i pescherecci saltando fuori dall\'acqua.',
+28:'Guida i banchi di pesci con fischi ultrasonici.',29:'Appare negli specchi appannati dei Centri Cure.',30:'Colleziona i sospiri di chi si spaventa.',
+31:'Si dice abiti i sogni lasciati a metà.',32:'Legge i pensieri ma li dimentica subito.',33:'Piega i cucchiai di tutta Mentevilla quando si annoia.',
+34:'Si allena colpendo le cascate controcorrente.',35:'Con un pugno può spostare un vagone merci.',36:'Vive nei fossi e mastica rifiuti che rende innocui.',
+37:'Il suo morso lascia un veleno che paralizza lentamente.',38:'Il suo fiato gela le pozzanghere in un istante.',39:'Scolpisce il ghiaccio con gli artigli per divertimento.',
+40:'Ruba il miele con la faccia più innocente del mondo.',41:'Quando si alza sulle zampe posteriori è il doppio di te.',42:'Dorme appeso ai lampioni scambiandoli per rami.',
+43:'Sente il battito delle prede a cento passi.',44:'Cola lava dal dorso: non abbracciarlo mai.',45:'La sua corazza è forgiata nel magma di Dragospoli.',
+46:'Nasce tra le rupi e mastica ghiaia per rinforzare le zanne.',47:'La sua corazza respinge le lance dei cacciatori antichi.',48:'Signore dei cieli di Dragospoli: pochi lo hanno visto atterrare.',
+49:'Genera corrente nuotando in cerchio nei laghi.',50:'Un idolo di pietra animato da una mente antica.',51:'Nebbia che canta: chi la segue si perde.',
+52:'La sua criniera si gonfia quando fiuta una sfida.',53:'Coltiva alghe rare sul proprio guscio.',54:'Il custode di Valmora: si mostra solo a chi ha un cuore saldo.'
+};
 // Att./Dif. Speciali per specie (stile Gen III): bs diventa [ps,att,dif,atsp,dfsp,vel]
 const SPX={1:[45,55],2:[62,70],3:[85,90],4:[60,45],5:[80,60],6:[105,80],7:[50,50],8:[65,70],9:[85,95],
 10:[25,35],11:[50,60],12:[30,35],13:[45,50],14:[65,70],15:[20,25],16:[25,45],17:[80,70],18:[60,55],19:[85,75],
@@ -191,6 +211,22 @@ const SPX={1:[45,55],2:[62,70],3:[85,90],4:[60,45],5:[80,60],6:[105,80],7:[50,50
 49:[80,85],50:[65,90],51:[85,75],52:[55,60],53:[75,85],54:[120,110]};
 for(const sp of DEX){ const q=SPX[sp.id]; sp.bs=[sp.bs[0],sp.bs[1],sp.bs[2],q[0],q[1],sp.bs[3]]; }
 const SPECIAL_TYPES=new Set(['FUO','ACQ','ERB','ELE','PSI','GHI','DRA']);
+const ABIL={};
+const ABIL_SET=[[[1,2,3],'Erbaiuto'],[[4,5,6],'Aiutofuoco'],[[7,8,9],'Idroaiuto'],
+ [[10,11,25,26],'Fugafacile'],[[12,13,14,17,32,33,42,43],'Insonnia'],[[15,16,23,24,50],'Robustezza'],
+ [[18,19,36,37],'Velenopunto'],[[20,21,22],'Statico'],[[27,28],'Nuotovelox'],
+ [[29,30,31,51],'Levitazione'],[[34,35,40,41,46,47,48,52],'Intimidazione'],
+ [[44,45],'Corpodifuoco'],[[49],'Assorbivolt'],[[53],'Assorbacqua'],[[38,39],'Mantelneve'],[[54],'Aura del Custode']];
+for(const q of ABIL_SET)for(const i of q[0])ABIL[i]=q[1];
+const ABIL_D={Erbaiuto:'Con pochi PS potenzia le mosse Erba.',Aiutofuoco:'Con pochi PS potenzia le mosse Fuoco.',
+ Idroaiuto:'Con pochi PS potenzia le mosse Acqua.',Fugafacile:'Fuga garantita dalle lotte selvatiche.',
+ Insonnia:'Impedisce il sonno.',Robustezza:'A PS pieni resiste a un colpo da KO.',
+ Velenopunto:'Può avvelenare chi lo colpisce da vicino.',Statico:'Può paralizzare chi lo colpisce da vicino.',
+ Nuotovelox:'Raddoppia la Velocità sotto la pioggia.',Levitazione:'Immune alle mosse Terra.',
+ Intimidazione:'Abbassa l\'Attacco del nemico all\'entrata.',Corpodifuoco:'Può scottare chi lo colpisce da vicino.',
+ Assorbivolt:'Assorbe le mosse Elettro e recupera PS.',Assorbacqua:'Assorbe le mosse Acqua e recupera PS.',
+ Mantelneve:'A suo agio nella grandine.','Aura del Custode':'Presenza leggendaria.'};
+const HOLD_BOOST={carbone:'FUO',gocciamistica:'ACQ',fogliamagica:'ERB',magnete:'ELE'};
 
 // ---------- Oggetti ----------
 const ITEMS = {
@@ -206,7 +242,14 @@ const ITEMS = {
  antigelo:{n:'Antigelo', cure:'FRZ', buy:250, d:'Cura il congelamento.'},
  antiscottatura:{n:'Antiscottatura', cure:'BRN', buy:250, d:'Cura la scottatura.'},
  curatotale:{n:'Curatotale', cure:'ALL', buy:600, d:'Cura ogni stato alterato.'},
- revitalizzante:{n:'Revitalizzante', revive:.5, buy:1500, d:'Rianima una creatura KO.'}
+ revitalizzante:{n:'Revitalizzante', revive:.5, buy:1500, d:'Rianima una creatura KO.'},
+ baccaoran:{n:'Baccaoran', hold:1, buy:150, d:'Da tenere: cura 15 PS quando i PS scendono a metà.'},
+ baccacura:{n:'Baccacura', hold:1, buy:300, d:'Da tenere: cura automaticamente gli stati alterati.'},
+ carbone:{n:'Carbone', hold:1, buy:1000, d:'Da tenere: potenzia le mosse Fuoco del 10%.'},
+ gocciamistica:{n:'Goccia Mistica', hold:1, buy:1000, d:'Da tenere: potenzia le mosse Acqua del 10%.'},
+ fogliamagica:{n:'Foglia Magica', hold:1, buy:1000, d:'Da tenere: potenzia le mosse Erba del 10%.'},
+ magnete:{n:'Magnete', hold:1, buy:1000, d:'Da tenere: potenzia le mosse Elettro del 10%.'},
+ fasciafocus:{n:'Fascia Focus', hold:1, buy:2500, d:'Da tenere: 10% di resistere a 1 PS a un colpo da KO.'}
 };
 
 // ================================================================
@@ -259,8 +302,8 @@ const ROUTE_TRAINERS = [
   {f:.7, name:'Montanaro Gigi', cls:'monta', party:[[40,29],[23,28]], t:'Vivo su queste vette da trent\'anni!', l:'Roccia frantumata!'}],
  [{f:.3, name:'Domatore Ras', cls:'doma', party:[[46,32],[44,32]], t:'Domo draghi da una vita!', l:'Nemmeno i draghi ti fermano...'},
   {f:.7, name:'Esperta Nina', cls:'studio', party:[[39,33],[35,33]], t:'Pochi arrivano fin quassù!', l:'Meriti la vetta.'}],
- [{f:.35, name:'Asso Marco', cls:'asso', party:[[13,36],[21,36],[45,37]], t:'Solo i migliori percorrono la Via della Lega!', l:'Sei pronto per la Lega.'},
-  {f:.7, name:'Asso Lia', cls:'asso', party:[[28,37],[43,37],[47,38]], t:'Ultimo ostacolo prima della Lega: io!', l:'La Lega ti attende, campione.'}]
+ [{f:.35, name:'Asso Marco', cls:'asso', double:true, party:[[13,36],[21,36],[45,37]], t:'Solo i migliori percorrono la Via della Lega! Io lotto in coppia!', l:'Sei pronto per la Lega.'},
+  {f:.7, name:'Asso Lia', cls:'asso', double:true, party:[[28,37],[43,37],[47,38]], t:'Ultimo ostacolo prima della Lega: io e la mia coppia!', l:'La Lega ti attende, campione.'}]
 ];
 const GYM_TRAINERS = [
  null,
@@ -417,7 +460,7 @@ function buildWorld(){
    if(!walk(G(w,cx,cy))){ cx=p[0]-(vert?1:0); cy=p[1]-(vert?0:1); }
    if(!walk(G(w,cx,cy))){ cx=p[0]+(vert?1:0); cy=p[1]+(vert?0:1); T(w,cx,cy,0); }
    const id='rt'+r+'_'+tr.name.replace(/\W/g,'');
-   w.npcs.push({x:cx,y:cy,dir:vert?3:0,spr:'T',cls:tr.cls,trainer:{id,name:tr.name,party:tr.party,money:tr.party[tr.party.length-1][1]*40,t:tr.t,l:tr.l}});
+   w.npcs.push({x:cx,y:cy,dir:vert?3:0,spr:'T',cls:tr.cls,trainer:{id,name:tr.name,party:tr.party,money:tr.party[tr.party.length-1][1]*40,t:tr.t,l:tr.l,double:tr.double}});
   }
  }
  // guardia della Lega sul percorso finale
@@ -430,13 +473,14 @@ function buildWorld(){
  // Team Ombra: reclute a Ondaporto (compaiono dopo la 1ª medaglia)
  {
   const t2=TOWNS[2];
-  const mkO=(id,x,y,party,txt,lose)=>({x,y,dir:2,spr:'E',cls:'ombra',
+  const duo=[[42,13],[36,13],[29,14],[10,13]];
+  const mkO=(id,x,y,txt,lose)=>({x,y,dir:2,spr:'E',cls:'ombra',
     cond:()=>GS.badges.length>=1&&!GS.flags.ombra1,
-    trainer:{id,name:'Recluta Ombra',party,money:500,t:txt,l:lose}});
-  w.npcs.push(mkO('ombra1a',t2.x-4,t2.y-1,[[42,13],[36,13]],
-   'Il Team Ombra si prende ciò che vuole! Anche questo Market!','Ritirata strategica...'));
-  w.npcs.push(mkO('ombra1b',t2.x+4,t2.y-1,[[29,14],[10,13]],
-   'Non impicciarti degli affari del Team Ombra, moccioso!','Il capo non deve saperlo!'));
+    trainer:{id,name:'Reclute Ombra',party:duo,money:1000,double:true,t:txt,l:lose}});
+  w.npcs.push(mkO('ombra1a',t2.x-4,t2.y-1,
+   'Il Team Ombra si prende ciò che vuole! Anche questo Market! Noi lottiamo in coppia!','Ritirata strategica...'));
+  w.npcs.push(mkO('ombra1b',t2.x+4,t2.y-1,
+   'Non impicciarti degli affari del Team Ombra, moccioso! In due ti schiacciamo!','Il capo non deve saperlo!'));
  }
  // covo del Team Ombra a nord-est di Tossinia
  {
@@ -547,10 +591,11 @@ function shopStock(badges){
  const s=['sfera','pozione','antidoto','paralisan'];
  if(badges>=1)s.push('risveglio');
  if(badges>=2)s.push('superpozione','antigelo','antiscottatura');
- if(badges>=3)s.push('supersfera');
+ if(badges>=3)s.push('supersfera','baccaoran','baccacura');
  if(badges>=4)s.push('curatotale');
- if(badges>=5)s.push('revitalizzante');
+ if(badges>=5)s.push('revitalizzante','carbone','gocciamistica','fogliamagica','magnete');
  if(badges>=6)s.push('ultrasfera','pozionemax');
+ if(badges>=7)s.push('fasciafocus');
  return s;
 }
 // ================================================================
@@ -884,14 +929,14 @@ function drawActor(g,sx,sy,dir,frame,pal){
 const GS = {
  mode:'title', map:'world', px:0, py:0, dir:2, moving:false, mvx:0, mvy:0, mvt:0,
  party:[], box:[], bag:{sfera:5,pozione:3}, money:3000, badges:[], defeated:{}, flags:{},
- dex:{seen:{},caught:{}}, steps:0, anim:0, name:'ALEX', fx:[]
+ dex:{seen:{},caught:{}}, steps:0, anim:0, name:'ALEX', fx:[], visited:{0:1}
 };
 let dialogQ=null, menuState=null, battle=null, fade=0, fadeCb=null, cut=null;
 
 function statCalc(base,lv,isHp){ return isHp? Math.floor(base*2*lv/100)+lv+10 : Math.floor(base*2*lv/100)+5; }
 function mkMon(id,lv){
  const sp=SP(id);
- const m={id, lv, exp:lv*lv*lv, status:null, stages:{atk:0,def:0,spa:0,spd:0,spe:0,acc:0,eva:0}, moves:[]};
+ const m={id, lv, exp:lv*lv*lv, status:null, stages:{atk:0,def:0,spa:0,spd:0,spe:0,acc:0,eva:0}, moves:[], abil:ABIL[id]||null, held:null};
  const learn=sp.mv.filter(x=>x[0]<=lv).slice(-4);
  for(const [,k] of learn) m.moves.push({k, pp:MOVES[k].pp});
  recalcStats(m); m.hp=m.maxhp;
@@ -941,6 +986,7 @@ function arrive(){
  const warp=curMap().warps[wkey];
  if((t===8||t===12)&&warp){ doWarp(warp); return; }
  if(t===1)GS.fx.push({x:GS.px,y:GS.py,t0:GS.anim});
+ if(GS.map==='world')for(let ti=0;ti<TOWNS.length;ti++){ const tw2=TOWNS[ti]; if(Math.abs(GS.px-tw2.x)<=13&&Math.abs(GS.py-tw2.y)<=11){ GS.visited[ti]=1; break; } }
  if(checkRival())return;
  if(checkSight())return;
  if(t===1 && GS.map==='world'){
@@ -1247,7 +1293,19 @@ function beep(kind){
 // ---------- menu ----------
 function openStartMenu(){ menuState={kind:'start',sel:0}; GS.mode='menu'; sfx('menu'); }
 function openShop(){ menuState={kind:'shop',sel:0}; GS.mode='menu'; sfx('menu'); }
-const START_ITEMS=['DEX','SQUADRA','ZAINO','ALLENATORE','SALVA','CHIUDI'];
+const START_ITEMS=['DEX','SQUADRA','ZAINO','MAPPA','ALLENATORE','SALVA','CHIUDI'];
+let MINIMAP=null;
+function buildMinimap(){
+ const w=MAPS.world;
+ const c=mkCanvas(WORLD_W,WORLD_H), g=c.getContext('2d');
+ const col={0:'#7cc8a0',25:'#7cc8a0',1:'#4ea06c',2:'#2e6c38',3:'#e6d7a0',4:'#7cc8a0',5:'#4890e0',6:'#b89058',7:'#b89058',8:'#8a5a3a',9:'#c8c8c8',11:'#c8c8c8',20:'#e8e058',21:'#c8a060'};
+ for(let y=0;y<w.h;y++)for(let x=0;x<w.w;x++){
+  g.fillStyle=col[G(w,x,y)]||'#2e6c38';
+  g.fillRect(x,y,1,1);
+ }
+ for(const bd of w.bldgs){ const B=BKINDS[bd.kind]; g.fillStyle='#d05048'; g.fillRect(bd.x,bd.y,B.w,B.h); }
+ MINIMAP=c;
+}
 
 function bagList(){ return Object.keys(GS.bag).filter(k=>GS.bag[k]>0); }
 
@@ -1255,8 +1313,8 @@ function menuInput(ev){
  const M=menuState;
  if(!M)return;
  if(M.kind==='start'){
-  if(ev==='U'){M.sel=(M.sel+5)%6;sfx('menu');}
-  else if(ev==='D'){M.sel=(M.sel+1)%6;sfx('menu');}
+  if(ev==='U'){M.sel=(M.sel+6)%7;sfx('menu');}
+  else if(ev==='D'){M.sel=(M.sel+1)%7;sfx('menu');}
   else if(ev==='B'||ev==='S'){GS.mode='world';menuState=null;sfx('b');}
   else if(ev==='A'){
    sfx('a');
@@ -1264,12 +1322,26 @@ function menuInput(ev){
    if(it==='DEX')menuState={kind:'dex',sel:0};
    else if(it==='SQUADRA')menuState={kind:'party',sel:0,ctx:'world'};
    else if(it==='ZAINO')menuState={kind:'bag',sel:0,ctx:'world'};
+   else if(it==='MAPPA')menuState={kind:'map',sel:0};
    else if(it==='ALLENATORE')menuState={kind:'card'};
    else if(it==='SALVA'){saveGame();say('Partita salvata! (Suggerimento: puoi anche esportarla in file dal pulsante sotto lo schermo.)');menuState=null;}
    else {GS.mode='world';menuState=null;}
   }
  }
- else if(M.kind==='card'){ if(ev==='A'||ev==='B'){menuState={kind:'start',sel:3};sfx('b');} }
+ else if(M.kind==='card'){ if(ev==='A'||ev==='B'){menuState={kind:'start',sel:4};sfx('b');} }
+ else if(M.kind==='map'){
+  const vis=Object.keys(GS.visited||{0:1}).map(Number).sort((a,b2)=>a-b2);
+  if(ev==='L'||ev==='U'){M.sel=(M.sel+vis.length-1)%vis.length;sfx('menu');}
+  else if(ev==='R'||ev==='D'){M.sel=(M.sel+1)%vis.length;sfx('menu');}
+  else if(ev==='B'){menuState={kind:'start',sel:3};sfx('b');}
+  else if(ev==='A'){
+   if(GS.badges.length<3){ sfx('b'); return; }
+   if(GS.map!=='world'){ menuState=null; say('Puoi usare il Volo solo all\'aperto!'); return; }
+   const ti=vis[M.sel%vis.length];
+   menuState=null; GS.mode='world'; sfx('run');
+   fadeOut(()=>{ GS.px=TOWNS[ti].x; GS.py=TOWNS[ti].y+1; GS.dir=2; GS.moving=false; fadeIn(); });
+  }
+ }
  else if(M.kind==='dex'){
   if(ev==='U'){M.sel=Math.max(0,M.sel-1);sfx('menu');}
   else if(ev==='D'){M.sel=Math.min(DEX.length-1,M.sel+1);sfx('menu');}
@@ -1312,7 +1384,10 @@ function menuInput(ev){
    else menuState={kind:'swap',from:M.monSel,sel:M.monSel};
   }
  }
- else if(M.kind==='stats'){ if(ev==='A'||ev==='B'){menuState={kind:'party',sel:M.monSel,ctx:'world'};sfx('b');} }
+ else if(M.kind==='stats'){
+  if(ev==='L'||ev==='R'){M.page=1-(M.page||0);sfx('menu');}
+  else if(ev==='A'||ev==='B'){menuState={kind:'party',sel:M.monSel,ctx:'world'};sfx('b');}
+ }
  else if(M.kind==='swap'){
   const n=GS.party.length;
   if(ev==='U'){M.sel=(M.sel+n-1)%n;sfx('menu');}
@@ -1408,6 +1483,15 @@ function menuInput(ev){
 }
 function useItemOn(k, idx, ctx){
  const it=ITEMS[k], mon=GS.party[idx];
+ if(it.hold){
+  if(ctx==='battle'){ menuState=null; say('Non puoi assegnare strumenti durante la lotta!', ()=>{GS.mode='battle';battleMenuBack();}); return; }
+  const prev=mon.held;
+  mon.held=k; GS.bag[k]--;
+  if(prev)GS.bag[prev]=(GS.bag[prev]||0)+1;
+  sfx('a'); menuState=null;
+  say(SP(mon.id).n+' ora tiene: '+it.n+'.'+(prev?' (Hai ripreso '+ITEMS[prev].n+'.)':''));
+  return;
+ }
  let ok=false, msg='';
  if(it.heal){
   if(mon.hp<=0)msg='È esausto! Serve un Revitalizzante.';
@@ -1497,6 +1581,32 @@ function drawBattleIntro(){
   ctx.beginPath(); ctx.arc(VW/2,VH/2,r,0,7); ctx.fill();
  }
 }
+function drawWeatherFx(kind){
+ const t=GS.anim;
+ if(kind==='rain'){
+  ctx.strokeStyle='rgba(120,160,255,.5)'; ctx.lineWidth=1.5;
+  for(let i=0;i<38;i++){
+   const x=((i*137)+t*0.25)%(VW+40)-20;
+   const y=((i*89)+t*0.55)%(VH+30)-15;
+   ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-3,y+11); ctx.stroke();
+  }
+ } else if(kind==='hail'){
+  ctx.fillStyle='rgba(255,255,255,.8)';
+  for(let i=0;i<30;i++){
+   const x=(((i*151)+Math.sin(t/700+i)*30+t*0.06)%(VW+20)+VW+20)%(VW+20)-10;
+   const y=((i*97)+t*0.18)%(VH+20)-10;
+   ctx.fillRect(x,y,3,3);
+  }
+ } else if(kind==='sand'){
+  ctx.fillStyle='rgba(220,190,120,.45)';
+  for(let i=0;i<40;i++){
+   const x=((i*113)+t*0.6)%(VW+30)-15;
+   const y=(i*83+Math.sin(t/400+i)*20)%VH;
+   ctx.fillRect(x,y,4,2);
+  }
+  ctx.fillStyle='rgba(210,180,110,.10)'; ctx.fillRect(0,0,VW,VH);
+ }
+}
 function drawFade(){
  const f=Math.abs(fade);
  if(f>0.001){ ctx.fillStyle='rgba(0,0,0,'+f+')'; ctx.fillRect(0,0,VW,VH); }
@@ -1527,6 +1637,8 @@ function drawWorld(){
   if(TILESET.ok&&TILESET.map[tk]!==undefined)ctx.drawImage(TILESET.img,TILESET.map[tk]*16,0,16,16,x*TD-ox,y*TD-oy,TD,TD);
   else ctx.drawImage(renderTile(t,fr), x*TD-ox, y*TD-oy, TD, TD);
  }
+ // meteo ambientale
+ if(GS.map==='world'){ const wz=zoneWeather(GS.px,GS.py); if(wz)drawWeatherFx(wz); }
  // fruscio dell'erba alta
  if(!GS.fx)GS.fx=[];
  GS.fx=GS.fx.filter(f=>GS.anim-f.t0<380);
@@ -1612,7 +1724,7 @@ function drawMenu(){
  const M=menuState; if(!M)return;
  if(M.kind==='start'){
   drawWorldBehind();
-  box(VW-150,8,142,150);
+  box(VW-150,8,142,172);
   START_ITEMS.forEach((it,i)=>{
    if(i===M.sel)txt('▶',VW-142,18+i*23,'#c03028');
    txt(it,VW-126,18+i*23);
@@ -1634,6 +1746,30 @@ function drawMenu(){
   }
   txt('Campione di Valmora: '+(GS.flags.champion?'SÌ!':'non ancora'),60,215);
  }
+ else if(M.kind==='map'){
+  box(8,8,VW-16,VH-16);
+  txt('MAPPA DI VALMORA'+(GS.badges.length>=3?'   Z: Volo':'   (Volo dalla 3ª medaglia)'),24,16,'#385890',13);
+  const mx=24,my=38,msz=250;
+  if(MINIMAP){ ctx.imageSmoothingEnabled=false; ctx.drawImage(MINIMAP,mx,my,msz,msz); }
+  ctx.strokeStyle='#385890'; ctx.lineWidth=2; ctx.strokeRect(mx,my,msz,msz);
+  const sc=msz/WORLD_W;
+  TOWNS.forEach((t2,ti)=>{
+   const vx=mx+t2.x*sc, vy=my+t2.y*sc;
+   ctx.fillStyle=GS.visited[ti]?'#f8f8f8':'#607080';
+   ctx.fillRect(vx-2,vy-2,6,6);
+   ctx.strokeStyle='#303030'; ctx.lineWidth=1; ctx.strokeRect(vx-2,vy-2,6,6);
+  });
+  const vis=Object.keys(GS.visited||{0:1}).map(Number).sort((a,b2)=>a-b2);
+  const selTi=vis[M.sel%vis.length], st=TOWNS[selTi];
+  if(Math.floor(GS.anim/300)%2){ ctx.strokeStyle='#f83030'; ctx.lineWidth=2; ctx.strokeRect(mx+st.x*sc-5,my+st.y*sc-5,12,12); }
+  if(GS.map==='world'){ ctx.fillStyle='#f83030'; ctx.fillRect(mx+GS.px*sc-1,my+GS.py*sc-1,4,4); }
+  txt(st.n,290,60,'#303030',14);
+  wrapText(st.motto||'',26).slice(0,2).forEach((l,i)=>txt(l,290,84+i*14,'#606060',10));
+  if(st.gym)txt('Palestra: '+st.gym.leader+' ('+TYPES[st.gym.type].n+')',290,124,'#385890',10);
+  if(GS.badges.length>=3&&GS.map==='world')txt('Z: vola qui',290,160,'#c03028',12);
+  txt('◀▶ scorri le città visitate',290,VH-46,'#606060',10);
+  txt('X: chiudi',290,VH-32,'#606060',10);
+ }
  else if(M.kind==='dex'){
   box(8,8,190,VH-16); box(200,8,VW-208,VH-16);
   txt('VALDEX',20,18,'#385890',15);
@@ -1653,7 +1789,9 @@ function drawMenu(){
    if(GS.dex.caught[sp.id]){
     txt('PS:'+sp.bs[0]+' ATT:'+sp.bs[1]+' DIF:'+sp.bs[2],220,200,'#303030',12);
     txt('ATSP:'+sp.bs[3]+' DFSP:'+sp.bs[4]+' VEL:'+sp.bs[5],220,218,'#303030',12);
-    txt(sp.ev?('Si evolve al liv. '+sp.ev.lv):'Non si evolve',220,240,'#385890',12);
+    txt(sp.ev?('Si evolve al liv. '+sp.ev.lv):'Non si evolve',220,238,'#385890',11);
+    wrapText(DEXTXT[sp.id]||'',36).slice(0,3).forEach((l,i)=>txt(l,220,258+i*14,'#606060',10));
+    txt('Z: ascolta il verso',220,VH-30,'#909090',9);
    } else txt('Catturalo per i dettagli!',220,200,'#909090',12);
   } else txt('???',270,90,'#909090',30);
  }
@@ -1683,23 +1821,39 @@ function drawMenu(){
   ['VEDI','SPOSTA'].forEach((s,i)=>{ if(i===M.sel)txt('▶',VW-142,VH-86+i*24,'#c03028'); txt(s,VW-126,VH-86+i*24); });
  }
  else if(M.kind==='stats'){
-  const mon=GS.party[M.monSel], sp=SP(mon.id);
+  const mon=GS.party[M.monSel], sp=SP(mon.id), pg=M.page||0;
   box(8,8,VW-16,VH-16);
-  drawMon(ctx,mon.id,40,40,96,96);
-  txt(sp.n+'   Liv.'+mon.lv,40,150,'#303030',16);
-  let tx=40; for(const t of sp.t){ ctx.fillStyle=TYPES[t].c; ctx.fillRect(tx,176,64,16); txt(TYPES[t].n,tx+4,178,'#fff',11); tx+=70; }
-  txt('PS  '+mon.hp+'/'+mon.maxhp,40,202);
-  txt('ATT '+mon.atk+'  DIF '+mon.def+'  VEL '+mon.spe,40,220,'#303030',12);
-  txt('ATSP '+mon.spa+'  DFSP '+mon.spd,40,237,'#303030',12);
-  txt('Esp. '+mon.exp+'  (prossimo liv: '+(expForLv(mon.lv+1)-mon.exp)+')',40,255,'#303030',11);
-  txt('MOSSE',240,40,'#385890',14);
-  mon.moves.forEach((mv,i)=>{
-   const mo=MOVES[mv.k];
-   txt(mo.n,240,66+i*40);
-   ctx.fillStyle=TYPES[mo.t].c; ctx.fillRect(240,82+i*40,50,13); txt(TYPES[mo.t].n,243,84+i*40,'#fff',9);
-   txt('PP '+mv.pp+'/'+mo.pp,300,82+i*40,'#606060',11);
-  });
-  statusTag(mon,150,150);
+  txt('SCHEDA — pagina '+(pg+1)+'/2   (◀▶ cambia)',24,14,'#385890',11);
+  drawMon(ctx,mon.id,40,36,96,96);
+  txt(sp.n+'   Liv.'+mon.lv,40,140,'#303030',15);
+  let tx=40; for(const t of sp.t){ ctx.fillStyle=TYPES[t].c; ctx.fillRect(tx,162,64,16); txt(TYPES[t].n,tx+4,164,'#fff',11); tx+=70; }
+  statusTag(mon,150,140);
+  if(pg===0){
+   txt('PS  '+mon.hp+'/'+mon.maxhp,40,192);
+   hpBar(110,192,110,mon);
+   txt('N. '+String(mon.id).padStart(2,'0'),240,36,'#606060',11);
+   txt('ABILITÀ',240,58,'#385890',12);
+   txt(mon.abil||'—',240,74,'#303030',12);
+   wrapText(mon.abil?(ABIL_D[mon.abil]||''):'',34).slice(0,2).forEach((l,i)=>txt(l,240,90+i*13,'#606060',10));
+   txt('STRUMENTO',240,124,'#385890',12);
+   txt(mon.held?ITEMS[mon.held].n:'Nessuno',240,140,'#303030',12);
+   if(mon.held)wrapText(ITEMS[mon.held].d,34).slice(0,2).forEach((l,i)=>txt(l,240,156+i*13,'#606060',10));
+   txt('MEMORIE',240,192,'#385890',12);
+   wrapText(DEXTXT[mon.id]||'',34).slice(0,3).forEach((l,i)=>txt(l,240,208+i*13,'#606060',10));
+   txt('Esp. '+mon.exp+'  (prossimo liv: '+(expForLv(mon.lv+1)-mon.exp)+')',40,222,'#303030',11);
+  } else {
+   txt('PS  '+mon.hp+'/'+mon.maxhp,40,192);
+   txt('ATT '+mon.atk+'  DIF '+mon.def+'  VEL '+mon.spe,40,212,'#303030',12);
+   txt('ATSP '+mon.spa+'  DFSP '+mon.spd,40,230,'#303030',12);
+   txt('MOSSE',240,36,'#385890',14);
+   mon.moves.forEach((mv,i)=>{
+    const mo=MOVES[mv.k];
+    txt(mo.n,240,58+i*42);
+    ctx.fillStyle=TYPES[mo.t].c; ctx.fillRect(240,74+i*42,50,13); txt(TYPES[mo.t].n,243,76+i*42,'#fff',9);
+    txt('PP '+mv.pp+'/'+mo.pp,300,74+i*42,'#606060',11);
+    txt(mo.p?('Pot. '+mo.p):'Stato',360,74+i*42,'#606060',11);
+   });
+  }
  }
  else if(M.kind==='bag'){
   if(battle)drawBattle(); else drawWorldBehind();
@@ -1797,31 +1951,88 @@ function startWild(routeIdx){
  let r=R()*tot, pick=pool.pool[0][0];
  for(const [id,w] of pool.pool){ r-=w; if(r<=0){pick=id;break;} }
  const lv=ri(pool.lv[0],pool.lv[1]);
- startWildMon(mkMon(pick,lv), routeIdx);
+ const wm=mkMon(pick,lv);
+ if(R()<.12)wm.held='baccaoran';
+ startWildMon(wm, routeIdx);
 }
 function startWildMon(mon, routeIdx){
  GS.dex.seen[mon.id]=1;
  const yi=firstAlive(); if(yi<0)return;
  battle={kind:'wild', foe:mon, you:GS.party[yi], queue:[], phase:'msg', menuSel:0, fightSel:0,
-   dhpY:GS.party[yi].hp, dhpF:mon.hp, vhpY:GS.party[yi].hp, vhpF:mon.hp, shake:0, pendingEvo:[], parts:new Set([yi]), intro:800};
+   shake:0, pendingEvo:[], parts:new Set([yi]), intro:800,
+   weather:(GS.map==='world')?zoneWeather(GS.px,GS.py):null};
+ initHp(battle.you); initHp(mon);
  resetStages(battle.you); resetStages(mon);
  GS.mode='battle'; sfx('super'); playMusic('battle');
  bqa('Un '+SP(mon.id).n+' selvatico! (Liv.'+mon.lv+')','sendF',400,()=>cry(mon.id));
  bqa('Vai, '+SP(battle.you.id).n+'!','sendY',400,()=>cry(battle.you.id),()=>{ battle.phase='menu'; });
+ if(battle.weather)bq(WEATHER_MSG[battle.weather]);
+ onEntry(battle.foe); onEntry(battle.you);
 }
 function startTrainerBattle(tr){
  const yi=firstAlive();
  if(yi<0){ say('Le tue creature sono esauste! Curale prima di lottare.'); return; }
- const foeParty=tr.party.map(([id,lv])=>mkMon(id,lv));
+ const foeParty=tr.party.map(p=>mkMon(p[0],p[1]));
+ if(tr.badge!==undefined||tr.elite!==undefined||tr.champion||tr.id==='ombraBoss'){
+  for(const f of foeParty){
+   if(R()<.5){
+    const bt={FUO:'carbone',ACQ:'gocciamistica',ERB:'fogliamagica',ELE:'magnete'}[SP(f.id).t[0]];
+    f.held=bt||'fasciafocus';
+   }
+  }
+ }
  battle={kind:'trainer', trainer:tr, foeParty, foeIdx:0, foe:foeParty[0], you:GS.party[yi],
-   queue:[], phase:'msg', menuSel:0, fightSel:0, dhpY:GS.party[yi].hp, dhpF:foeParty[0].hp,
-   vhpY:GS.party[yi].hp, vhpF:foeParty[0].hp, shake:0, pendingEvo:[], parts:new Set([yi]), intro:800};
+   queue:[], phase:'msg', menuSel:0, fightSel:0, shake:0, pendingEvo:[], parts:new Set([yi]), intro:800,
+   double:!!tr.double, weather:(GS.map==='world')?zoneWeather(GS.px,GS.py):null};
+ initHp(battle.you); for(const f of foeParty)initHp(f);
+ if(battle.double){
+  const yi2=GS.party.findIndex((m,i)=>m.hp>0&&i!==yi);
+  if(yi2>=0){ battle.you2=GS.party[yi2]; resetStages(battle.you2); initHp(battle.you2); battle.parts.add(yi2); }
+  else battle.double=false;
+  if(battle.double&&foeParty[1]){ battle.foe2=foeParty[1]; battle.foeIdx=1; resetStages(battle.foe2); initHp(battle.foe2); GS.dex.seen[battle.foe2.id]=1; }
+  else battle.double=false;
+  battle.chooseFor=0;
+ }
  resetStages(battle.you); resetStages(battle.foe);
  GS.dex.seen[battle.foe.id]=1;
  GS.mode='battle'; sfx('super'); playMusic('battle');
  bq(tr.name+' ti sfida!');
- bqa(tr.name+' manda in campo '+SP(battle.foe.id).n+'!','sendF',400,()=>cry(battle.foe.id));
- bqa('Vai, '+SP(battle.you.id).n+'!','sendY',400,()=>cry(battle.you.id),()=>{ battle.phase='menu'; });
+ bqa(tr.name+' manda in campo '+SP(battle.foe.id).n+(battle.double?' e '+SP(battle.foe2.id).n:'')+'!','sendF',400,()=>cry(battle.foe.id));
+ bqa('Vai, '+SP(battle.you.id).n+(battle.double?' e '+SP(battle.you2.id).n:'')+'!','sendY',400,()=>cry(battle.you.id),()=>{ battle.phase='menu'; });
+ if(battle.weather)bq(WEATHER_MSG[battle.weather]);
+ onEntry(battle.foe); onEntry(battle.you);
+ if(battle.double){ onEntry(battle.foe2); onEntry(battle.you2); }
+}
+function initHp(m){ m.dhp=m.hp; m.vhp=m.hp; m.down=false; }
+function activeMons(){ const b=battle; return b?[b.you,b.you2,b.foe,b.foe2].filter(Boolean):[]; }
+function playerSide(m){ return GS.party.includes(m); }
+const WEATHER_MSG={rain:'Piove!',hail:'Grandina!',sand:'Una tempesta di sabbia imperversa!',sun:'La luce del sole è intensa!'};
+function zoneWeather(x,y){
+ if(typeof ZONE==='undefined'||!ZONE)return null;
+ const z=ZONE[y*WORLD_W+x];
+ if(z===7||z===8)return 'hail';
+ if(z===5||z===6)return 'rain';
+ if(z===2)return 'sand';
+ const t7=TOWNS[7];
+ if(Math.abs(x-t7.x)<=13&&Math.abs(y-t7.y)<=11)return 'hail';
+ return null;
+}
+function onEntry(m){
+ if(!battle||!m)return;
+ if(m.abil==='Intimidazione'){
+  const opps=(playerSide(m)?[battle.foe,battle.foe2]:[battle.you,battle.you2]).filter(x=>x&&x.hp>0);
+  for(const o of opps){
+   bq(SP(m.id).n+' intimidisce '+SP(o.id).n+'!');
+   applyStage(o,'atk',-1,playerSide(o));
+  }
+ }
+}
+function berry(m){
+ if(m&&m.held==='baccaoran'&&m.hp>0&&m.hp<=m.maxhp/2){
+  m.held=null;
+  m.hp=Math.min(m.maxhp,m.hp+15);
+  bq(SP(m.id).n+' mangia la sua Baccaoran!'); visHp(m);
+ }
 }
 function resetStages(m){ m.stages={atk:0,def:0,spa:0,spd:0,spe:0,acc:0,eva:0}; m.slpTurns=0; m.conf=0; m.flinched=false; }
 function bq(txt, fn, after){ battle.queue.push({txt, fn, after, applied:false}); battle.phase='msg'; }
@@ -1843,7 +2054,7 @@ function effAtk(m){ let a=m.atk*stageMult(m.stages.atk); if(m.status==='BRN')a*=
 function effDef(m){ return m.def*stageMult(m.stages.def); }
 function effSpa(m){ return m.spa*stageMult(m.stages.spa); }
 function effSpd(m){ return m.spd*stageMult(m.stages.spd); }
-function effSpe(m){ let s=m.spe*stageMult(m.stages.spe); if(m.status==='PAR')s*=.25; return s; }
+function effSpe(m){ let s=m.spe*stageMult(m.stages.spe); if(m.status==='PAR')s*=.25; if(battle&&battle.weather==='rain'&&m.abil==='Nuotovelox')s*=2; return s; }
 
 function battleMenuBack(){ if(battle)battle.phase='menu'; }
 
@@ -1852,8 +2063,7 @@ function battleUpdate(dt, ev){
  if(b.intro>0){ b.intro-=dt; if(b.intro<0)b.intro=0; return; }
  // animazione barre PS
  const lerp=(cur,tgt)=>{ const d=tgt-cur; if(Math.abs(d)<.5)return tgt; return cur+d*Math.min(1,dt/180); };
- b.dhpY=lerp(b.dhpY,Math.max(0,b.vhpY));
- b.dhpF=lerp(b.dhpF,Math.max(0,b.vhpF));
+ for(const m of activeMons()){ if(m.dhp===undefined)initHp(m); m.dhp=lerp(m.dhp,Math.max(0,m.vhp)); }
  if(b.shake>0)b.shake-=dt;
  if(b.banim)b.banim.t+=dt;
  if(b.phase==='msg'){
@@ -1888,25 +2098,38 @@ function battleUpdate(dt, ev){
   else if(ev==='R'&&b.menuSel%2===0){b.menuSel++;sfx('menu');}
   else if(ev==='A'){
    sfx('a');
-   if(b.menuSel===0)b.phase='fight';
+   if(b.menuSel===0){ b.phase='fight'; if(b.double)b.chooseFor=0; }
    else if(b.menuSel===1){ menuState={kind:'bag',sel:0,ctx:'battle'}; GS.mode='menu'; }
-   else if(b.menuSel===2){ menuState={kind:'party',sel:0,ctx:'switch'}; GS.mode='menu'; }
+   else if(b.menuSel===2){
+    if(b.double)bq('Nelle lotte in coppia i rimpiazzi sono automatici!');
+    else { menuState={kind:'party',sel:0,ctx:'switch'}; GS.mode='menu'; }
+   }
    else tryRun();
   }
   return;
  }
  if(b.phase==='fight'){
-  const n=b.you.moves.length;
+  const actor=(b.double&&b.chooseFor===1)?b.you2:b.you;
+  const n=actor.moves.length;
   if(ev==='U'&&b.fightSel>=2){b.fightSel-=2;sfx('menu');}
   else if(ev==='D'&&b.fightSel+2<n){b.fightSel+=2;sfx('menu');}
   else if(ev==='L'&&b.fightSel%2===1){b.fightSel--;sfx('menu');}
   else if(ev==='R'&&b.fightSel%2===0&&b.fightSel+1<n){b.fightSel++;sfx('menu');}
-  else if(ev==='B'){b.phase='menu';sfx('b');}
+  else if(ev==='B'){ if(b.double&&b.chooseFor===1){b.chooseFor=0;b.fightSel=0;} else {b.phase='menu';} sfx('b'); }
   else if(ev==='A'){
-   const mv=b.you.moves[b.fightSel];
+   const mv=actor.moves[b.fightSel];
    if(mv.pp<=0){ sfx('b'); return; }
    sfx('a');
-   playTurn(mv);
+   if(b.double){
+    if(b.chooseFor===0){
+     b.act1={user:b.you,mv};
+     if(b.you2&&b.you2.hp>0){ b.chooseFor=1; b.fightSel=0; return; }
+     playTurnDouble(b.act1,null);
+    } else {
+     playTurnDouble(b.act1,{user:b.you2,mv});
+     b.chooseFor=0;
+    }
+   } else playTurn(mv);
   }
   return;
  }
@@ -1914,6 +2137,7 @@ function battleUpdate(dt, ev){
 function tryRun(){
  const b=battle;
  if(b.kind==='trainer'){ bq('Non puoi fuggire da una lotta tra allenatori!'); return; }
+ if(b.you.abil==='Fugafacile'){ sfx('run'); bq('Fuga garantita! (Fugafacile)', null, endBattleCleanup); return; }
  const chance=Math.min(.95,.5+ (effSpe(b.you)-effSpe(b.foe))/200 + .2);
  if(R()<chance){ sfx('run'); bq('Fuga riuscita!', null, endBattleCleanup); }
  else { bq('Non riesci a fuggire!', null, ()=>{ foeTurnOnly(); }); }
@@ -1925,24 +2149,25 @@ function doSwitch(idx){
  if(b.parts)b.parts.add(idx);
  if(b.freeSwitch){
   b.freeSwitch=false;
-  b.you=GS.party[idx]; resetStages(b.you); b.dhpY=b.you.hp; b.vhpY=b.you.hp;
-  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ b.youDown=false; });
+  b.you=GS.party[idx]; resetStages(b.you); initHp(b.you);
+  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ if(b.you){b.you.down=false;} onEntry(b.you); });
   sendNextFoe();
   return;
  }
  if(b.forceSwitch){
   b.forceSwitch=false;
-  b.you=GS.party[idx]; resetStages(b.you); b.dhpY=b.you.hp; b.vhpY=b.you.hp;
-  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ b.youDown=false; },()=>{ b.phase='menu'; });
+  b.you=GS.party[idx]; resetStages(b.you); initHp(b.you);
+  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ if(b.you){b.you.down=false;} onEntry(b.you); },()=>{ b.phase='menu'; });
  } else {
   bq(SP(b.you.id).n+', torna indietro!');
-  b.you=GS.party[idx]; resetStages(b.you); b.dhpY=b.you.hp; b.vhpY=b.you.hp;
-  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ b.youDown=false; });
+  b.you=GS.party[idx]; resetStages(b.you); initHp(b.you);
+  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ if(b.you){b.you.down=false;} onEntry(b.you); });
   foeTurnOnly();
  }
 }
 function foeTurnOnly(){
  const b=battle;
+ if(b.double){ playTurnDouble(null,null); return; }
  const fm=pickFoeMove();
  execMove(b.foe,b.you,fm,false);
  endTurnStatus();
@@ -1961,6 +2186,43 @@ function pickFoeMove(){
   if(s>bestScore){bestScore=s;best=m;}
  }
  return best;
+}
+function pickFoeMoveFor(f){
+ const usable=f.moves.filter(m=>m.pp>0);
+ if(!usable.length)return {k:'azione',pp:1};
+ let best=null,score=-1;
+ for(const m of usable){
+  const mo=MOVES[m.k];
+  let v=R()*20+(mo.p||0);
+  if(v>score){score=v;best=m;}
+ }
+ return best;
+}
+function pickTargetFor(user){
+ const b=battle;
+ const opp=playerSide(user)?[b.foe,b.foe2]:[b.you,b.you2];
+ const alive=opp.filter(m=>m&&m.hp>0);
+ if(!alive.length)return null;
+ return alive[Math.floor(R()*alive.length)];
+}
+function playTurnDouble(a1,a2){
+ const b=battle;
+ const acts=[];
+ if(a1&&a1.user.hp>0)acts.push(a1);
+ if(a2&&a2.user.hp>0)acts.push(a2);
+ for(const f of [b.foe,b.foe2])if(f&&f.hp>0)acts.push({user:f,mv:pickFoeMoveFor(f)});
+ acts.sort((x,y)=>{
+  const px=MOVES[x.mv.k].pr||0, py=MOVES[y.mv.k].pr||0;
+  if(px!==py)return py-px;
+  return effSpe(y.user)-effSpe(x.user);
+ });
+ for(const a of acts){
+  if(a.user.hp<=0)continue;
+  const tgt=pickTargetFor(a.user);
+  if(!tgt)break;
+  execMove(a.user,tgt,a.mv,playerSide(a.user));
+ }
+ endTurnStatus();
 }
 function playTurn(yourMv){
  const b=battle;
@@ -1984,9 +2246,8 @@ function execMoveIfAlive(user,tgt,mv,isYou){
 }
 // aggiorna la barra PS "visiva" del lato giusto quando il messaggio scorre
 function visHp(m){
- const b=battle, v=Math.max(0,m.hp);
- const isYou=(m===b.you)||GS.party.includes(m);
- bqv(()=>{ if(!battle)return; if(isYou)b.vhpY=v; else if(m===b.foe)b.vhpF=v; });
+ const v=Math.max(0,m.hp);
+ bqv(()=>{ m.vhp=v; });
 }
 function bqv(fn){ battle.queue.push({txt:null, fn, applied:false}); }
 function execMove(user,tgt,mv,isYou){
@@ -2033,6 +2294,9 @@ function execMove(user,tgt,mv,isYou){
   let landed=0;
   for(let h=0;h<hits;h++){
    if(tgt.hp<=0)break;
+   if(mo.t==='TER'&&tgt.abil==='Levitazione'){ bq(tn+' fluttua: nessun effetto! (Levitazione)'); break; }
+   if(mo.t==='ACQ'&&tgt.abil==='Assorbacqua'){ tgt.hp=Math.min(tgt.maxhp,tgt.hp+Math.max(1,Math.floor(tgt.maxhp/4))); bq(tn+' assorbe l\'acqua e recupera PS! (Assorbacqua)'); visHp(tgt); break; }
+   if(mo.t==='ELE'&&tgt.abil==='Assorbivolt'){ tgt.hp=Math.min(tgt.maxhp,tgt.hp+Math.max(1,Math.floor(tgt.maxhp/4))); bq(tn+' assorbe la scarica e recupera PS! (Assorbivolt)'); visHp(tgt); break; }
    const eff=typeMult(mo.t,SP(tgt.id).t);
    if(eff===0){ bq('Non ha alcun effetto su '+tn+'...'); break; }
    const crit=R()<(mo.hc?1/8:1/16);
@@ -2042,7 +2306,13 @@ function execMove(user,tgt,mv,isYou){
    const D=specialMove?effSpd(tgt):effDef(tgt);
    let dmg=Math.floor(Math.floor((2*user.lv/5+2)*mo.p*A/Math.max(1,D)/50)+2);
    dmg=Math.floor(dmg*stab*eff*(crit?2:1)*(217+Math.floor(R()*39))/255);
+   if((user.abil==='Erbaiuto'&&mo.t==='ERB'||user.abil==='Aiutofuoco'&&mo.t==='FUO'||user.abil==='Idroaiuto'&&mo.t==='ACQ')&&user.hp<=user.maxhp/3)dmg=Math.floor(dmg*1.5);
+   if(user.held&&HOLD_BOOST[user.held]===mo.t)dmg=Math.floor(dmg*1.1);
+   if(b.weather==='rain'){ if(mo.t==='ACQ')dmg=Math.floor(dmg*1.5); else if(mo.t==='FUO')dmg=Math.floor(dmg*0.5); }
+   else if(b.weather==='sun'){ if(mo.t==='FUO')dmg=Math.floor(dmg*1.5); else if(mo.t==='ACQ')dmg=Math.floor(dmg*0.5); }
    dmg=Math.max(1,dmg);
+   if(dmg>=tgt.hp&&tgt.abil==='Robustezza'&&tgt.hp===tgt.maxhp&&tgt.hp>1){ dmg=tgt.hp-1; bq(tn+' resiste con Robustezza!'); }
+   else if(dmg>=tgt.hp&&tgt.held==='fasciafocus'&&tgt.hp>1&&R()<.1){ dmg=tgt.hp-1; bq(tn+' resiste grazie alla Fascia Focus!'); }
    const applied=Math.min(tgt.hp,dmg);
    tgt.hp-=applied; landed++;
    const effSnap=eff;
@@ -2056,6 +2326,11 @@ function execMove(user,tgt,mv,isYou){
     user.hp=Math.min(user.maxhp,user.hp+rec);
     bq(un+' assorbe energia!'); visHp(user);
    }
+   if(!specialMove&&applied>0&&user.hp>0&&!user.status){
+    const ret={Corpodifuoco:'BRN',Velenopunto:'PSN',Statico:'PAR'}[tgt.abil];
+    if(ret&&R()<.3)applyStatus(user,ret,!isYou);
+   }
+   berry(tgt);
   }
   if(hits>1&&landed>1)bq('Colpito '+landed+' volte!');
   // effetti secondari: flinch e confusione
@@ -2090,9 +2365,11 @@ function execMove(user,tgt,mv,isYou){
 const STAT_N={atk:'Attacco',def:'Difesa',spa:'Att. Speciale',spd:'Dif. Speciale',spe:'Velocità',acc:'Precisione',eva:'Elusione'};
 const ST_MSG={PSN:'è avvelenato!',PAR:'è paralizzato!',SLP:'si addormenta!',BRN:'è scottato!',FRZ:'è congelato!'};
 function applyStatus(m,st,isFoe){
+ if(st==='SLP'&&m.abil==='Insonnia'){ bq(SP(m.id).n+' non può addormentarsi! (Insonnia)'); return; }
  m.status=st;
  if(st==='SLP')m.slpTurns=ri(1,3);
  bq((isFoe?'Il nemico ':'')+SP(m.id).n+' '+ST_MSG[st]);
+ if(m.held==='baccacura'){ m.held=null; m.status=null; bq(SP(m.id).n+' si cura con la Baccacura!'); }
 }
 function applyStage(m,stat,d,isYouSide){
  const cur=m.stages[stat];
@@ -2104,15 +2381,29 @@ function applyStage(m,stat,d,isYouSide){
 }
 function endTurnStatus(){
  const b=battle; if(!b)return;
- b.you.flinched=false; b.foe.flinched=false;
- for(const [m,isYou] of [[b.you,true],[b.foe,false]]){
+ for(const m of activeMons())m.flinched=false;
+ for(const m of activeMons()){
   if(m.hp<=0)continue;
+  const isYou=playerSide(m);
   if(m.status==='PSN'||m.status==='BRN'){
    const chip=Math.max(1,Math.floor(m.maxhp/(m.status==='PSN'?8:16)));
    m.hp=Math.max(0,m.hp-chip);
    bq((isYou?'':'Il nemico ')+SP(m.id).n+(m.status==='PSN'?' soffre per il veleno!':' soffre per la scottatura!'),()=>sfx('hit'));
-   visHp(m);
+   visHp(m); berry(m);
    if(m.hp<=0)handleFaint(m,!isYou);
+  }
+ }
+ if(b.weather==='hail'||b.weather==='sand'){
+  for(const m of activeMons()){
+   if(m.hp<=0)continue;
+   const tt=SP(m.id).t;
+   const immune= b.weather==='hail' ? tt.includes('GHI') : (tt.includes('ROC')||tt.includes('TER'));
+   if(immune)continue;
+   const chip=Math.max(1,Math.floor(m.maxhp/16));
+   m.hp=Math.max(0,m.hp-chip);
+   bq((playerSide(m)?'':'Il nemico ')+SP(m.id).n+(b.weather==='hail'?' è colpito dalla grandine!':' è sferzato dalla sabbia!'),()=>sfx('hit'));
+   visHp(m); berry(m);
+   if(m.hp<=0)handleFaint(m,!playerSide(m));
   }
  }
 }
@@ -2121,15 +2412,16 @@ function handleFaint(m,wasTargetOfYou){
  if(m.faintQueued)return;
  m.faintQueued=true;
  const isFoeMon = (m===b.foe)|| (b.foeParty&&b.foeParty.includes(m));
- bqanim(isFoeMon?'faintF':'faintY',450,()=>{sfx('faint');cry(m.id,true);},()=>{ if(!battle)return; if(isFoeMon)battle.foeDown=true; else battle.youDown=true; });
+ bqanim(isFoeMon?'faintF':'faintY',450,()=>{sfx('faint');cry(m.id,true);},()=>{ m.down=true; });
  bq((isFoeMon?'Il nemico ':'')+SP(m.id).n+' è esausto!');
- if(isFoeMon)foeFainted(); else youFainted();
+ if(isFoeMon)foeFainted(m); else youFainted(m);
 }
-function foeFainted(){
+function foeFainted(fm){
  const b=battle;
+ fm=fm||b.foe;
  // esperienza divisa tra i partecipanti ancora in forze
- const sp=SP(b.foe.id);
- const total=Math.max(1,Math.floor(sp.bx*b.foe.lv/7*(b.kind==='trainer'?1.5:1)));
+ const sp=SP(fm.id);
+ const total=Math.max(1,Math.floor(sp.bx*fm.lv/7*(b.kind==='trainer'?1.5:1)));
  let list=[...(b.parts||[])].map(i=>GS.party[i]).filter(m=>m&&m.hp>0);
  if(!list.length)list=[b.you];
  const each=Math.max(1,Math.floor(total/list.length));
@@ -2138,7 +2430,7 @@ function foeFainted(){
   bq(SP(mon.id).n+' guadagna '+each+' Esp.!');
   checkLevelUps(mon);
  }
- afterFoeFaint();
+ afterFoeFaint(fm);
 }
 function sendNextFoe(){
  const b=battle; if(!b)return;
@@ -2147,7 +2439,7 @@ function sendNextFoe(){
  resetStages(b.foe);
  GS.dex.seen[b.foe.id]=1;
  b.parts=new Set([GS.party.indexOf(b.you)]);
- bqa(b.trainer.name+' manda in campo '+SP(b.foe.id).n+'!','sendF',400,()=>{ b.dhpF=b.foe.hp; b.vhpF=b.foe.hp; b.foeDown=false; b.foeHidden=false; },()=>{ b.phase='menu'; });
+ bqa(b.trainer.name+' manda in campo '+SP(b.foe.id).n+'!','sendF',400,()=>{ initHp(b.foe); b.foeHidden=false; cry(b.foe.id); onEntry(b.foe); },()=>{ b.phase='menu'; });
 }
 function checkLevelUps(mon){
  while(mon.lv<100&&mon.exp>=expForLv(mon.lv+1)){
@@ -2174,8 +2466,40 @@ function checkLevelUps(mon){
   if(sp.ev&&mon.lv>=sp.ev.lv&&battle&&!battle.pendingEvo.includes(mon))battle.pendingEvo.push(mon);
  }
 }
-function afterFoeFaint(){
+function trainerVictory(){
+ const b=battle, tr=b.trainer;
+ bq('Hai sconfitto '+tr.name+'!',()=>sfx('victory'));
+ bq(tr.name+': "'+tr.l+'"');
+ bq('Ricevi '+tr.money+'¤!',()=>{
+  GS.money+=tr.money; GS.defeated[tr.id]=1;
+  if(GS.defeated['ombra1a']||GS.defeated['ombra1b']){GS.defeated['ombra1a']=1;GS.defeated['ombra1b']=1;GS.flags.ombra1=true;}
+  if(GS.defeated['ombraBoss'])GS.flags.teamDone=true;
+ });
+ if(tr.badge!==undefined){
+  bq('Ottieni la '+tr.badgeName+'!',()=>{ if(!GS.badges.includes(tr.badge))GS.badges.push(tr.badge); sfx('badge'); });
+ }
+ if(tr.champion){
+  bq('Congratulazioni! Sei il nuovo CAMPIONE DI VALMORA!',()=>{ GS.flags.champion=true; sfx('badge'); });
+  bq('Il Prof. Cedro sarebbe fiero di te. Grazie per aver giocato!');
+ }
+ bq('',null,endBattleVictory);
+}
+function afterFoeFaint(fm){
  const b=battle;
+ fm=fm||b.foe;
+ if(b.double){
+  const nxt=b.foeParty.slice(b.foeIdx+1).find(x=>x.hp>0);
+  if(nxt){
+   b.foeIdx=b.foeParty.indexOf(nxt);
+   if(fm===b.foe)b.foe=nxt; else b.foe2=nxt;
+   resetStages(nxt); initHp(nxt); GS.dex.seen[nxt.id]=1;
+   bqa(b.trainer.name+' manda in campo '+SP(nxt.id).n+'!','sendF',400,()=>{ nxt.down=false; b.foeHidden=false; cry(nxt.id); onEntry(nxt); });
+  } else {
+   const anyAlive=[b.foe,b.foe2].some(x=>x&&x.hp>0);
+   if(!anyAlive)trainerVictory();
+  }
+  return;
+ }
  if(b.kind==='trainer'&&b.foeIdx<b.foeParty.length-1){
   const nxt=SP(b.foeParty[b.foeIdx+1].id).n;
   const alive=GS.party.filter(m=>m.hp>0).length;
@@ -2190,23 +2514,7 @@ function afterFoeFaint(){
    bq(b.trainer.name+' sta per mandare in campo '+nxt+'.',null,sendNextFoe);
   }
  } else if(b.kind==='trainer'){
-  // vittoria contro allenatore
-  const tr=b.trainer;
-  bq('Hai sconfitto '+tr.name+'!',()=>sfx('victory'));
-  bq(tr.name+': "'+tr.l+'"');
-  bq('Ricevi '+tr.money+'¤!',()=>{
-   GS.money+=tr.money; GS.defeated[tr.id]=1;
-   if(GS.defeated['ombra1a']&&GS.defeated['ombra1b'])GS.flags.ombra1=true;
-   if(GS.defeated['ombraBoss'])GS.flags.teamDone=true;
-  });
-  if(tr.badge!==undefined){
-   bq('Ottieni la '+tr.badgeName+'!',()=>{ if(!GS.badges.includes(tr.badge))GS.badges.push(tr.badge); sfx('badge'); });
-  }
-  if(tr.champion){
-   bq('Congratulazioni! Sei il nuovo CAMPIONE DI VALMORA!',()=>{ GS.flags.champion=true; sfx('badge'); });
-   bq('Il Prof. Cedro sarebbe fiero di te. Grazie per aver giocato!');
-  }
-  bq('',null,endBattleVictory);
+  trainerVictory();
  } else {
   bq('',null,endBattleVictory);
  }
@@ -2224,22 +2532,42 @@ function runEvolutions(evos){
  const to=SP(sp.ev.to);
  say('Che succede? '+sp.n+' si sta evolvendo!', ()=>{
   const ratio=mon.hp/mon.maxhp;
-  mon.id=to.id; recalcStats(mon); mon.hp=Math.max(1,Math.floor(mon.maxhp*ratio));
+  mon.id=to.id; mon.abil=ABIL[to.id]||null; recalcStats(mon); mon.hp=Math.max(1,Math.floor(mon.maxhp*ratio));
   GS.dex.seen[to.id]=1; GS.dex.caught[to.id]=1;
   sfx('evolve');
   say(sp.n+' si è evoluto in '+to.n+'!', ()=>runEvolutions(evos));
  });
 }
-function youFainted(){
+function youFainted(m){
  const b=battle;
- const alive=GS.party.filter(m=>m.hp>0).length;
+ if(b.double){
+  const activi=[b.you,b.you2].filter(Boolean);
+  const bi=GS.party.findIndex(x=>x.hp>0&&!activi.includes(x));
+  const send=(slot2)=>{
+   const nx=GS.party[bi];
+   if(slot2)b.you2=nx; else b.you=nx;
+   resetStages(nx); initHp(nx); b.parts.add(bi);
+   bqa('Vai, '+SP(nx.id).n+'!','sendY',400,()=>{ nx.down=false; cry(nx.id); onEntry(nx); });
+  };
+  if(m===b.you2){
+   if(bi>=0)send(true); else b.you2=null;
+  } else {
+   if(bi>=0)send(false);
+   else if(b.you2&&b.you2.hp>0){ b.you=b.you2; b.you2=null; }
+   else { blackout(); return; }
+  }
+  return;
+ }
+ const alive=GS.party.filter(x=>x.hp>0).length;
  if(alive>0){
   bq('Scegli la prossima creatura!',null,()=>{
    b.forceSwitch=true;
    menuState={kind:'party',sel:0,ctx:'switch',force:true};
    GS.mode='menu';
   });
- } else {
+ } else { blackout(); }
+}
+function blackout(){
   bq('Non hai più creature in grado di lottare!');
   bq('Torni di corsa al Centro Cure più vicino...',null,()=>{
    const lost=Math.floor(GS.money/2);
@@ -2253,13 +2581,13 @@ function youFainted(){
     say('Le tue creature sono state curate. (Hai perso '+lost+'¤ per strada...)');
    });
   });
- }
 }
 function endBattleCleanup(){ battle=null; if(GS.mode==='battle')GS.mode='world'; playMusic('overworld'); }
 
 function throwBall(k){
  const b=battle;
  menuState=null; GS.mode='battle';
+ if(b.kind==='trainer'){ bq('Non puoi catturare le creature degli allenatori!',null,()=>{ b.phase='menu'; }); return; }
  GS.bag[k]--;
  const it=ITEMS[k];
  bq('Lanci una '+it.n+'!');
@@ -2304,6 +2632,23 @@ function drawBattle(){
  // piattaforme
  ctx.fillStyle='#88b868'; ctx.beginPath(); ctx.ellipse(350,132,80,20,0,0,7); ctx.fill();
  ctx.fillStyle='#78a858'; ctx.beginPath(); ctx.ellipse(120,235,90,24,0,0,7); ctx.fill();
+ if(b.double){
+  const slots=[[b.foe,296,42,92],[b.foe2,376,16,76],[b.you,30,122,128],[b.you2,170,98,100]];
+  for(const q of slots){
+   const m=q[0]; if(!m||m.down)continue;
+   if((m.hp<=0)&&((m.dhp??0)<=0.5))continue;
+   if(playerSide(m))drawMonBack(ctx,m.id,q[1],q[2],q[3],q[3]);
+   else drawMon(ctx,m.id,q[1],q[2],q[3],q[3]);
+  }
+  box(10,10,206,66);
+  [[b.foe,0],[b.foe2,1]].forEach(q=>{ const m=q[0]; if(!m)return; const y=17+q[1]*26;
+   txt(SP(m.id).n,20,y,'#303030',11); txt('L'+m.lv,126,y,'#303030',10);
+   hpBar(20,y+11,102,{hp:m.dhp??m.hp,maxhp:m.maxhp}); statusTag(m,152,y+8); });
+  box(VW-220,VH-148,210,66);
+  [[b.you,0],[b.you2,1]].forEach(q=>{ const m=q[0]; if(!m)return; const y=VH-141+q[1]*26;
+   txt(SP(m.id).n,VW-210,y,'#303030',11); txt('L'+m.lv,VW-104,y,'#303030',10);
+   hpBar(VW-210,y+11,102,{hp:m.dhp??m.hp,maxhp:m.maxhp}); statusTag(m,VW-78,y+8); });
+ } else {
  const sh=b.shake>0? (R()*6-3):0;
  let fx=294,fy=26,fw=112,fh=112,fa=1;
  let yx=48,yy=106,yw=152,yh=152,ya=1;
@@ -2328,9 +2673,9 @@ function drawBattle(){
  }
  if(b.ballRest&&!ball)ball={x:350,y:122};
  const blink=b.shake>0&&Math.floor(GS.anim/70)%2===0;
- const fshow=!(b.foeDown||b.foeHidden)&&(b.foe.hp>0||b.dhpF>0.5||A);
+ const fshow=!(b.foe.down||b.foeHidden)&&(b.foe.hp>0||(b.foe.dhp??0)>0.5||A);
  if(fshow&&!(blink&&b.shakeTgt==='foe')){ ctx.globalAlpha=fa; drawMon(ctx,b.foe.id,fx,fy,fw,fh); ctx.globalAlpha=1; }
- const yshow=!b.youDown&&(b.you.hp>0||b.dhpY>0.5||A);
+ const yshow=!b.you.down&&(b.you.hp>0||(b.you.dhp??0)>0.5||A);
  if(yshow&&!(blink&&b.shakeTgt==='you')){ ctx.globalAlpha=ya; drawMonBack(ctx,b.you.id,yx,yy,yw,yh); ctx.globalAlpha=1; }
  if(burst>0){ ctx.globalAlpha=1-burst; ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(350,105,20+burst*70,0,7); ctx.fill(); ctx.globalAlpha=1; }
  if(ball)drawBall(ctx,ball.x,ball.y,12,ball.tilt||0);
@@ -2340,22 +2685,24 @@ function drawBattle(){
  box(14,14,190,58);
  txt(SP(b.foe.id).n,24,22,'#303030',13);
  txt('L'+b.foe.lv,160,22,'#303030',12);
- const fmon={hp:b.dhpF,maxhp:b.foe.maxhp};
+ const fmon={hp:b.foe.dhp??b.foe.hp,maxhp:b.foe.maxhp};
  hpBar(24,42,150,fmon);
  statusTag(b.foe,24,54);
  // box info tuo
  box(VW-210,VH-146,196,70);
  txt(SP(b.you.id).n,VW-198,VH-138,'#303030',13);
  txt('L'+b.you.lv,VW-50,VH-138,'#303030',12);
- const ymon={hp:b.dhpY,maxhp:b.you.maxhp};
+ const ymon={hp:b.you.dhp??b.you.hp,maxhp:b.you.maxhp};
  hpBar(VW-198,VH-118,150,ymon);
- txt(Math.ceil(Math.max(0,b.dhpY))+'/'+b.you.maxhp,VW-198,VH-104,'#303030',11);
+ txt(Math.ceil(Math.max(0,b.you.dhp??b.you.hp))+'/'+b.you.maxhp,VW-198,VH-104,'#303030',11);
  statusTag(b.you,VW-90,VH-106);
  // barra esperienza
  const need=expForLv(b.you.lv+1)-expForLv(b.you.lv);
  const have=b.you.exp-expForLv(b.you.lv);
  ctx.fillStyle='#585858'; ctx.fillRect(VW-198,VH-88,150,5);
  ctx.fillStyle='#40a0f8'; ctx.fillRect(VW-197,VH-87,148*Math.max(0,Math.min(1,have/need)),3);
+ }
+ if(b.weather)drawWeatherFx(b.weather);
  // riquadro messaggi/menu
  box(8,VH-72,VW-16,64,{bg:'#283848'});
  if(b.phase==='msg'){
@@ -2380,7 +2727,9 @@ function drawBattle(){
  } else if(b.phase==='fight'){
   ctx.fillStyle='#f8f8e8'; ctx.fillRect(12,VH-68,VW-24,56);
   ctx.strokeStyle='#385890'; ctx.strokeRect(12,VH-68,VW-24,56);
-  b.you.moves.forEach((mv,i)=>{
+  const actorD=(b.double&&b.chooseFor===1)?b.you2:b.you;
+  if(b.double)txt('Mosse di '+SP(actorD.id).n+':',24,VH-66,'#385890',9);
+  actorD.moves.forEach((mv,i)=>{
    const x=28+(i%2)*230, y=VH-58+Math.floor(i/2)*26;
    if(b.fightSel===i)txt('▶',x-14,y,'#c03028');
    const mo=MOVES[mv.k];
@@ -2448,6 +2797,7 @@ function newGame(){
  GS.party=[]; GS.box=[]; GS.bag={sfera:5,pozione:3}; GS.money=3000;
  GS.badges=[]; GS.defeated={}; GS.flags={}; GS.dex={seen:{},caught:{}};
  GS.lastHeal={map:'world',x:TOWNS[0].x,y:TOWNS[0].y+1};
+ GS.visited={0:1};
  say('Benvenuto nella regione di VALMORA! Il laboratorio del Prof. Cedro è l\'edificio col tetto viola, qui a sud. Va\' a trovarlo: ha un regalo per te!');
 }
 const SAVE_KEY='valmora_save_v1';
@@ -2455,7 +2805,7 @@ function saveData(){
  return JSON.stringify({
   map:GS.map,px:GS.px,py:GS.py,dir:GS.dir,party:GS.party,box:GS.box,bag:GS.bag,
   money:GS.money,badges:GS.badges,defeated:GS.defeated,flags:GS.flags,dex:GS.dex,
-  lastHeal:GS.lastHeal,name:GS.name,steps:GS.steps
+  lastHeal:GS.lastHeal,name:GS.name,steps:GS.steps,visited:GS.visited
  });
 }
 function saveGame(){
@@ -2465,7 +2815,7 @@ function applySave(d){
  GS.map=d.map;GS.px=d.px;GS.py=d.py;GS.dir=d.dir||2;
  GS.party=d.party||[];GS.box=d.box||[];GS.bag=d.bag||{};GS.money=d.money||0;
  GS.badges=d.badges||[];GS.defeated=d.defeated||{};GS.flags=d.flags||{};
- GS.dex=d.dex||{seen:{},caught:{}};GS.lastHeal=d.lastHeal;GS.name=d.name||'ALEX';GS.steps=d.steps||0;
+ GS.dex=d.dex||{seen:{},caught:{}};GS.lastHeal=d.lastHeal;GS.name=d.name||'ALEX';GS.steps=d.steps||0;GS.visited=d.visited||{0:1};
  GS.moving=false; battle=null; menuState=null; dialogQ=null;
  // se la mappa è cambiata e il giocatore è dentro un ostacolo, torna all'ultimo Centro
  const cm=MAPS[GS.map]||MAPS.world;
@@ -2474,7 +2824,7 @@ function applySave(d){
   GS.map=lh.map; GS.px=lh.x; GS.py=lh.y;
  }
  // ricalcola i derivati per sicurezza
- for(const m of [...GS.party,...GS.box]){ const hp=m.hp; recalcStats(m); m.hp=Math.min(hp,m.maxhp); }
+ for(const m of [...GS.party,...GS.box]){ const hp=m.hp; recalcStats(m); m.hp=Math.min(hp,m.maxhp); m.abil=ABIL[m.id]||null; }
  // nasconde la guardia se già superata
  if(GS.badges.length>=8){ const g=MAPS.world.npcs.find(n=>n.guard); if(g&&GS.flags.guardGone)g.hidden=true; }
 }
@@ -2501,6 +2851,7 @@ function init(){
  buildWorld();
  cv=document.getElementById('gioco');
  ctx=cv.getContext('2d');
+ buildMinimap();
  preloadSprites();
  playMusic('title');
  initInput();
