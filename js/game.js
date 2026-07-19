@@ -1044,7 +1044,7 @@ function arrive(){
  if(t===1)GS.fx.push({x:GS.px,y:GS.py,t0:GS.anim});
  if(GS.map==='world')for(let ti=0;ti<TOWNS.length;ti++){ const tw2=TOWNS[ti]; if(Math.abs(GS.px-tw2.x)<=13&&Math.abs(GS.py-tw2.y)<=11){ GS.visited[ti]=1; break; } }
  if(!battle)updateWorldMusic();
- if(checkRival())return;
+ if(check())return;
  if(checkSight())return;
  if(t===1 && GS.map==='world'){
   const z=ZONE[GS.py*WORLD_W+GS.px];
@@ -1106,7 +1106,7 @@ function cutUpdate(dt){
 const RIVAL_CNT={1:[4,5,6],4:[7,8,9],7:[1,2,3]};
 const RIVAL_BATTLES=[
  {id:'rival1', x0:25,x1:31, y0:180,y1:184, badges:0, money:600,
-  party:s=>[[RIVAL_CNT[s][0],8],[10,6]],
+  party:s=>[[RIVAL_CNT[s][0],6],[10,6]],
   t:'Milo: "Eccoti, cugino di scelte facili! Il mio nuovo compagno scalpita: vediamo chi ha scelto meglio dal laboratorio dello zio!"',
   l:'Uff... hai solo avuto fortuna. Ci rivediamo più avanti!'},
  {id:'rival2', x0:83,x1:89, y0:120,y1:125, badges:2, money:1600,
