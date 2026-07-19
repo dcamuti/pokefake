@@ -400,15 +400,22 @@ const BKINDS={
  gym:{w:5,h:5,door:[3,4]},
  house:{w:4,h:3,door:[1,2]},
  lab:{w:7,h:5,door:[3,4]},
- league:{w:8,h:5,door:[4,4]}
+ league:{w:8,h:5,door:[4,4]},
+ house0:{w:5,h:4,door:[1,3]}, house1:{w:5,h:4,door:[1,3]},
+ house2:{w:5,h:5,door:[1,4]}, house3:{w:5,h:4,door:[1,3]},
+ house4:{w:6,h:4,door:[2,3]}, house5:{w:4,h:4,door:[1,3]},
+ house6:{w:5,h:4,door:[1,3]}, house7:{w:4,h:5,door:[1,4]},
+ villa:{w:7,h:8,door:null}, sala:{w:10,h:5,door:null},
+ fanclub:{w:5,h:5,door:null}, pensione:{w:5,h:5,door:null}
 };
 function placeBuilding(m,bx,by,kind,warpTo){
  const B=BKINDS[kind];
  for(let y=0;y<B.h;y++)for(let x=0;x<B.w;x++)T(m,bx+x,by+y,25);
+ m.bldgs.push({x:bx,y:by,kind});
+ if(!B.door)return null;
  const dx=bx+B.door[0], dy=by+B.door[1];
  T(m,dx,dy,8);
  if(warpTo) m.warps[dx+','+dy]=warpTo;
- m.bldgs.push({x:bx,y:by,kind});
  return [dx,dy];
 }
 function stdInterior(id,w,h){
@@ -452,8 +459,16 @@ function buildWorld(){
   if(tw.league) placeBuilding(w,cx-4,cy-6,'league',{map:'league',x:6,y:26});
   // case
   if(!tw.league){
-   placeBuilding(w,cx-10,cy+6,'house',{map:'house'+ti,x:3,y:4});
+   {
+    const hk='house'+(ti%8), HB=BKINDS[hk];
+    placeBuilding(w,(cx-9)-HB.door[0],(cy+8)-HB.door[1],hk,{map:'house'+ti,x:3,y:4});
+   }
   }
+  // edifici caratteristici per città
+  if(ti===2){ placeBuilding(w,cx+7,cy+5,'fanclub',null); T(w,cx+6,cy+9,7); w.signs[(cx+6)+','+(cy+9)]='FAN CLUB DELLE CREATURE — Oggi si parla di pinne e di code.'; }
+  if(ti===4){ placeBuilding(w,cx+7,cy+5,'pensione',null); T(w,cx+6,cy+9,7); w.signs[(cx+6)+','+(cy+9)]='PENSIONE DI BOSCOVERDE — Presto apriremo le porte agli allevatori!'; }
+  if(ti===5){ placeBuilding(w,cx+3,cy+6,'sala',null); T(w,cx+2,cy+10,7); w.signs[(cx+2)+','+(cy+10)]='SALA GIOCHI DI TOSSINIA — Chiusa per "ispezione" del Team Ombra.'; }
+  if(ti===6){ placeBuilding(w,cx+6,cy+3,'villa',null); T(w,cx+5,cy+10,7); w.signs[(cx+5)+','+(cy+10)]='VILLA DI MENTEVILLA — La dimora dei veggenti. Non bussate: sanno già.'; }
   // cartello
   T(w,cx-2,cy+2,7);
   w.signs[(cx-2)+','+(cy+2)] = tw.n.toUpperCase()+' — '+tw.motto;
@@ -649,6 +664,15 @@ function px(c,x,y,col){ c.fillStyle=col; c.fillRect(x,y,1,1); }
 const TILE_ORDER=[0,1,2,3,4,'4b',5,'5b',6,7,8,9,11,12,13,14,15,16,17,18,19,20,30,31,32,33,34,21];
 const TILESET={ok:false,map:{}};
 const TREE={ok:false};
+const WATERA={ok:false}, FLOWA={ok:false};
+(function(){ if(typeof Image==='undefined')return;
+ for(const q of [[WATERA,'assets/tiles/water_anim.png'],[FLOWA,'assets/tiles/flowers_anim.png']]){
+  const img=new Image();
+  img.onload=()=>{ q[0].img=img; q[0].ok=true; };
+  img.onerror=()=>{};
+  img.src=q[1];
+ }
+})();
 (function(){ if(typeof Image==='undefined')return; const img=new Image();
  img.onload=()=>{ TREE.img=img; TREE.ok=true; }; img.onerror=()=>{};
  img.src='assets/tiles/tree.png'; })();
@@ -1044,7 +1068,7 @@ function arrive(){
  if(t===1)GS.fx.push({x:GS.px,y:GS.py,t0:GS.anim});
  if(GS.map==='world')for(let ti=0;ti<TOWNS.length;ti++){ const tw2=TOWNS[ti]; if(Math.abs(GS.px-tw2.x)<=13&&Math.abs(GS.py-tw2.y)<=11){ GS.visited[ti]=1; break; } }
  if(!battle)updateWorldMusic();
- if(check())return;
+ if(checkRival())return;
  if(checkSight())return;
  if(t===1 && GS.map==='world'){
   const z=ZONE[GS.py*WORLD_W+GS.px];
@@ -1106,7 +1130,7 @@ function cutUpdate(dt){
 const RIVAL_CNT={1:[4,5,6],4:[7,8,9],7:[1,2,3]};
 const RIVAL_BATTLES=[
  {id:'rival1', x0:25,x1:31, y0:180,y1:184, badges:0, money:600,
-  party:s=>[[RIVAL_CNT[s][0],6],[10,6]],
+  party:s=>[[RIVAL_CNT[s][0],8],[10,6]],
   t:'Milo: "Eccoti, cugino di scelte facili! Il mio nuovo compagno scalpita: vediamo chi ha scelto meglio dal laboratorio dello zio!"',
   l:'Uff... hai solo avuto fortuna. Ci rivediamo più avanti!'},
  {id:'rival2', x0:83,x1:89, y0:120,y1:125, badges:2, money:1600,
@@ -1900,6 +1924,8 @@ function drawWorld(){
    ctx.drawImage(TREE.img,(x%2)*16,(y%2)*16,16,16,x*TD-ox,y*TD-oy,TD,TD);
    continue;
   }
+  if(t===5&&WATERA.ok){ const f8=Math.floor(GS.anim/220)%8; ctx.drawImage(WATERA.img,f8*16,0,16,16,x*TD-ox,y*TD-oy,TD,TD); continue; }
+  if(t===4&&FLOWA.ok){ const f5=Math.floor(GS.anim/260)%5; ctx.drawImage(FLOWA.img,f5*16,0,16,16,x*TD-ox,y*TD-oy,TD,TD); continue; }
   const fr=(t===5||t===4)?(Math.floor(GS.anim/550)%2):0;
   const tk=fr?(t+'b'):t;
   if(TILESET.ok&&TILESET.map[tk]!==undefined)ctx.drawImage(TILESET.img,TILESET.map[tk]*16,0,16,16,x*TD-ox,y*TD-oy,TD,TD);
