@@ -179,9 +179,12 @@ const DEX = [
  S(51,'Nebbiolo',['GHI','SPE'],[60,55,60,90],[[1,'polvergelo'],[12,'lingualunga'],[20,'ipnosi'],[28,'geloraggio'],[36,'ombrartiglio'],[44,'bora']],null,60,155),
  S(52,'Leonzio',['NOR'],[85,95,65,90],[[1,'morso'],[15,'ruggito'],[25,'affilatoio'],[35,'bodyslam'],[45,'iperraggio']],null,45,180),
  S(53,'Tritone',['ACQ','ERB'],[75,70,80,60],[[1,'bolla'],[12,'assorbi'],[20,'frustata'],[28,'idropulsar'],[36,'gigassorbi'],[44,'surf']],null,75,155),
- S(54,'Solverio',['PSI','VOL'],[100,110,90,130],[[1,'psicoraggio'],[1,'aeroassalto'],[40,'agilita'],[50,'psichico'],[60,'iperraggio']],null,3,255)
+ S(54,'Solverio',['PSI','VOL'],[100,110,90,130],[[1,'psicoraggio'],[1,'aeroassalto'],[40,'agilita'],[50,'psichico'],[60,'iperraggio']],null,3,255),
+ S(55,'Voltamanta',['ELE','VOL'],[95,85,80,110],[[1,'tuonoshock'],[1,'aeroassalto'],[45,'agilita'],[55,'tuono'],[62,'iperraggio']],null,3,255),
+ S(56,'Notturnia',['SPE','PSI'],[90,95,85,105],[[1,'ombrartiglio'],[1,'psicoraggio'],[45,'ipnosi'],[55,'psichico'],[62,'iperraggio']],null,3,255)
 ];
 const SP = id=>DEX[id-1];
+function mname(m){ return (m&&m.nick)||SP(m.id).n; }
 const DEXTXT={
 1:'Germoglia sul dorso una foglia che profuma di rugiada.',2:'Le radici sulle zampe gli danno presa su ogni roccia.',3:'Il suo guscio fiorito ospita interi sciami di insetti amici.',
 4:'La sua coda scalda le tane nelle notti fredde.',5:'Sputa braci quando è agitato: meglio non spaventarlo.',6:'Le sue ali sollevano correnti d\'aria rovente.',
@@ -200,7 +203,9 @@ const DEXTXT={
 43:'Sente il battito delle prede a cento passi.',44:'Cola lava dal dorso: non abbracciarlo mai.',45:'La sua corazza è forgiata nel magma di Dragospoli.',
 46:'Nasce tra le rupi e mastica ghiaia per rinforzare le zanne.',47:'La sua corazza respinge le lance dei cacciatori antichi.',48:'Signore dei cieli di Dragospoli: pochi lo hanno visto atterrare.',
 49:'Genera corrente nuotando in cerchio nei laghi.',50:'Un idolo di pietra animato da una mente antica.',51:'Nebbia che canta: chi la segue si perde.',
-52:'La sua criniera si gonfia quando fiuta una sfida.',53:'Coltiva alghe rare sul proprio guscio.',54:'Il custode di Valmora: si mostra solo a chi ha un cuore saldo.'
+52:'La sua criniera si gonfia quando fiuta una sfida.',53:'Coltiva alghe rare sul proprio guscio.',54:'Il custode di Valmora: si mostra solo a chi ha un cuore saldo.',
+55:'Cavalca le tempeste della grotta: ogni battito d\'ali è un tuono.',
+56:'Si dice che custodisca gli incubi dimenticati nel profondo della terra.'
 };
 // Att./Dif. Speciali per specie (stile Gen III): bs diventa [ps,att,dif,atsp,dfsp,vel]
 const SPX={1:[45,55],2:[62,70],3:[85,90],4:[60,45],5:[80,60],6:[105,80],7:[50,50],8:[65,70],9:[85,95],
@@ -208,15 +213,15 @@ const SPX={1:[45,55],2:[62,70],3:[85,90],4:[60,45],5:[80,60],6:[105,80],7:[50,50
 20:[60,40],21:[85,55],22:[115,70],23:[30,40],24:[45,60],25:[35,45],26:[50,65],27:[55,50],28:[85,75],
 29:[60,40],30:[90,60],31:[120,80],32:[75,40],33:[120,70],34:[25,45],35:[40,70],36:[40,50],37:[60,75],
 38:[55,50],39:[85,80],40:[30,40],41:[50,65],42:[40,40],43:[70,70],44:[55,45],45:[80,70],46:[50,45],47:[70,65],48:[100,90],
-49:[80,85],50:[65,90],51:[85,75],52:[55,60],53:[75,85],54:[120,110]};
+49:[80,85],50:[65,90],51:[85,75],52:[55,60],53:[75,85],54:[120,110],55:[115,95],56:[120,100]};
 for(const sp of DEX){ const q=SPX[sp.id]; sp.bs=[sp.bs[0],sp.bs[1],sp.bs[2],q[0],q[1],sp.bs[3]]; }
 const SPECIAL_TYPES=new Set(['FUO','ACQ','ERB','ELE','PSI','GHI','DRA']);
 const ABIL={};
 const ABIL_SET=[[[1,2,3],'Erbaiuto'],[[4,5,6],'Aiutofuoco'],[[7,8,9],'Idroaiuto'],
  [[10,11,25,26],'Fugafacile'],[[12,13,14,17,32,33,42,43],'Insonnia'],[[15,16,23,24,50],'Robustezza'],
  [[18,19,36,37],'Velenopunto'],[[20,21,22],'Statico'],[[27,28],'Nuotovelox'],
- [[29,30,31,51],'Levitazione'],[[34,35,40,41,46,47,48,52],'Intimidazione'],
- [[44,45],'Corpodifuoco'],[[49],'Assorbivolt'],[[53],'Assorbacqua'],[[38,39],'Mantelneve'],[[54],'Aura del Custode']];
+ [[29,30,31,51,56],'Levitazione'],[[34,35,40,41,46,47,48,52],'Intimidazione'],
+ [[44,45],'Corpodifuoco'],[[49,55],'Assorbivolt'],[[53],'Assorbacqua'],[[38,39],'Mantelneve'],[[54],'Aura del Custode']];
 for(const q of ABIL_SET)for(const i of q[0])ABIL[i]=q[1];
 const ABIL_D={Erbaiuto:'Con pochi PS potenzia le mosse Erba.',Aiutofuoco:'Con pochi PS potenzia le mosse Fuoco.',
  Idroaiuto:'Con pochi PS potenzia le mosse Acqua.',Fugafacile:'Fuga garantita dalle lotte selvatiche.',
@@ -227,6 +232,7 @@ const ABIL_D={Erbaiuto:'Con pochi PS potenzia le mosse Erba.',Aiutofuoco:'Con po
  Assorbivolt:'Assorbe le mosse Elettro e recupera PS.',Assorbacqua:'Assorbe le mosse Acqua e recupera PS.',
  Mantelneve:'A suo agio nella grandine.','Aura del Custode':'Presenza leggendaria.'};
 const HOLD_BOOST={carbone:'FUO',gocciamistica:'ACQ',fogliamagica:'ERB',magnete:'ELE'};
+const STONE_EVO={pietrafocaia:{5:6,44:45},pietraidrica:{8:9,27:28},pietrafoglia:{2:3,18:19},pietratuono:{21:22},pietralunare:{30:31,32:33}};
 
 // ---------- Oggetti ----------
 const ITEMS = {
@@ -250,7 +256,12 @@ const ITEMS = {
  fogliamagica:{n:'Foglia Magica', hold:1, buy:1000, d:'Da tenere: potenzia le mosse Erba del 10%.'},
  magnete:{n:'Magnete', hold:1, buy:1000, d:'Da tenere: potenzia le mosse Elettro del 10%.'},
  fasciafocus:{n:'Fascia Focus', hold:1, buy:2500, d:'Da tenere: 10% di resistere a 1 PS a un colpo da KO.'},
- canna:{n:'Canna da Pesca', buy:500, tool:'fish', d:'Usala rivolto verso l\'acqua per pescare creature.'}
+ canna:{n:'Canna da Pesca', buy:500, tool:'fish', d:'Usala rivolto verso l\'acqua per pescare creature.'},
+ pietrafocaia:{n:'Pietrafocaia', stone:1, buy:3000, d:'Fa evolvere all\'istante certe creature di Fuoco.'},
+ pietraidrica:{n:'Pietraidrica', stone:1, buy:3000, d:'Fa evolvere all\'istante certe creature d\'Acqua.'},
+ pietrafoglia:{n:'Pietrafoglia', stone:1, buy:3000, d:'Fa evolvere all\'istante certe creature d\'Erba.'},
+ pietratuono:{n:'Pietratuono', stone:1, buy:3000, d:'Fa evolvere all\'istante certe creature Elettro.'},
+ pietralunare:{n:'Pietralunare', stone:1, buy:3000, d:'Fa evolvere certe creature Spettro e Psico.'}
 };
 
 // ================================================================
@@ -492,10 +503,36 @@ function buildWorld(){
   T(w,dx-2,dy+1,7);
   w.signs[(dx-2)+','+(dy+1)]='COVO DEL TEAM OMBRA — VIETATO L\'INGRESSO! (soprattutto ai mocciosi con le medaglie)';
  }
+ // Grotta di Valmora a nord-est di Dragospoli
+ {
+  const t8=TOWNS[8];
+  const gx=t8.x+11, gy=t8.y-7;
+  T(w,gx-1,gy,2); T(w,gx+1,gy,2); T(w,gx,gy,8);
+  w.warps[gx+','+gy]={map:'grotta1',x:10,y:13};
+  T(w,gx-2,gy+1,7);
+  w.signs[(gx-2)+','+(gy+1)]='GROTTA DI VALMORA — I più forti dormono nel profondo. Si dice che solo un Campione possa svegliarli.';
+ }
  // altare di Solverio vicino alla Lega
  { const ax=TOWNS[9].x+8, ay=TOWNS[9].y+8; T(w,ax,ay,20); w.signs[ax+','+ay]='ALTARE'; }
  buildInteriors();
  buildCovo();
+ buildGrotta();
+}
+function buildGrotta(){
+ const c1=stdInterior('grotta1',21,15);
+ const mura=[[4,3,1,8],[8,5,9,1],[12,8,1,5],[16,2,1,5]];
+ for(const q of mura)for(let i=0;i<q[2];i++)for(let j=0;j<q[3];j++)T(c1,q[0]+i,q[1]+j,9);
+ for(const p of [[2,10],[6,2],[14,11],[18,9]])T(c1,p[0],p[1],18);
+ T(c1,10,14,12); c1.warps['10,14']={map:'world',x:TOWNS[8].x+11,y:TOWNS[8].y-6};
+ T(c1,19,2,12); c1.warps['19,2']={map:'grotta2',x:2,y:11};
+ c1.encounter={pool:[[23,20],[42,25],[44,20],[25,20],[50,8]],lv:[30,38]};
+ const c2=stdInterior('grotta2',17,14);
+ for(const p of [[4,6],[12,6],[8,9]])T(c2,p[0],p[1],18);
+ T(c2,2,12,12); c2.warps['2,12']={map:'grotta1',x:19,y:3};
+ T(c2,5,2,20); T(c2,11,2,20);
+ c2.altars={'5,2':{id:55,flag:'leg55',t:'Un ronzio elettrico pervade la sala... VOLTAMANTA, il signore delle tempeste, si risveglia!'},
+            '11,2':{id:56,flag:'leg56',t:'Un\'ombra si allunga dalla parete... NOTTURNIA, custode degli incubi, apre gli occhi!'}};
+ c2.encounter={pool:[[50,15],[44,20],[24,15],[43,25],[51,10]],lv:[38,45]};
 }
 function townChat(ti){
  const c=[
@@ -595,7 +632,7 @@ function shopStock(badges){
  if(badges>=3)s.push('supersfera','baccaoran','baccacura');
  if(badges>=4)s.push('curatotale');
  if(badges>=5)s.push('revitalizzante','carbone','gocciamistica','fogliamagica','magnete');
- if(badges>=6)s.push('ultrasfera','pozionemax');
+ if(badges>=6)s.push('ultrasfera','pozionemax','pietrafocaia','pietraidrica','pietrafoglia','pietratuono','pietralunare');
  if(badges>=7)s.push('fasciafocus');
  return s;
 }
@@ -934,10 +971,22 @@ const GS = {
 };
 let dialogQ=null, menuState=null, battle=null, fade=0, fadeCb=null, cut=null;
 
-function statCalc(base,lv,isHp){ return isHp? Math.floor(base*2*lv/100)+lv+10 : Math.floor(base*2*lv/100)+5; }
+const NATURES=[
+ {n:'Ardita',up:'atk',dn:'spa'},{n:'Vivace',up:'spe',dn:'def'},{n:'Modesta',up:'spa',dn:'atk'},
+ {n:'Placida',up:'def',dn:'spe'},{n:'Serena',up:'spd',dn:'atk'},{n:'Audace',up:'atk',dn:'def'},
+ {n:'Timida',up:'spe',dn:'atk'},{n:'Quieta',up:'spa',dn:'spe'},{n:'Ferma',up:'def',dn:'spa'},
+ {n:'Cauta',up:'spd',dn:'spa'},{n:'Allegra',up:'spe',dn:'spa'},{n:'Decisa',up:'atk',dn:'spd'},
+ {n:'Docile'},{n:'Seria'},{n:'Ingenua',up:'spa',dn:'spd'}
+];
+function rollIV(){ return {hp:ri(0,31),atk:ri(0,31),def:ri(0,31),spa:ri(0,31),spd:ri(0,31),spe:ri(0,31)}; }
+function statCalc(base,lv,isHp,iv,ev){
+ iv=iv||0; ev=ev||0;
+ const core=Math.floor((base*2+iv+Math.floor(ev/4))*lv/100);
+ return isHp? core+lv+10 : core+5;
+}
 function mkMon(id,lv){
  const sp=SP(id);
- const m={id, lv, exp:lv*lv*lv, status:null, stages:{atk:0,def:0,spa:0,spd:0,spe:0,acc:0,eva:0}, moves:[], abil:ABIL[id]||null, held:null, shiny:R()<1/512};
+ const m={id, lv, exp:lv*lv*lv, status:null, stages:{atk:0,def:0,spa:0,spd:0,spe:0,acc:0,eva:0}, moves:[], abil:ABIL[id]||null, held:null, shiny:R()<1/512, nat:ri(0,14), iv:null, ev:null, nick:null};
  const learn=sp.mv.filter(x=>x[0]<=lv).slice(-4);
  for(const [,k] of learn) m.moves.push({k, pp:MOVES[k].pp});
  recalcStats(m); m.hp=m.maxhp;
@@ -945,13 +994,19 @@ function mkMon(id,lv){
 }
 function recalcStats(m){
  const sp=SP(m.id);
+ if(!m.iv)m.iv=rollIV();
+ if(!m.ev)m.ev={hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
+ if(m.nat===undefined||m.nat===null)m.nat=ri(0,NATURES.length-1);
+ const nat=NATURES[m.nat];
  const old=m.maxhp||0;
- m.maxhp=statCalc(sp.bs[0],m.lv,true);
- m.atk=statCalc(sp.bs[1],m.lv);
- m.def=statCalc(sp.bs[2],m.lv);
- m.spa=statCalc(sp.bs[3],m.lv);
- m.spd=statCalc(sp.bs[4],m.lv);
- m.spe=statCalc(sp.bs[5],m.lv);
+ m.maxhp=statCalc(sp.bs[0],m.lv,true,m.iv.hp,m.ev.hp);
+ const mk=(key,bi)=>{
+  let v=statCalc(sp.bs[bi],m.lv,false,m.iv[key],m.ev[key]);
+  if(nat.up===key)v=Math.floor(v*1.1);
+  if(nat.dn===key)v=Math.floor(v*0.9);
+  return v;
+ };
+ m.atk=mk('atk',1); m.def=mk('def',2); m.spa=mk('spa',3); m.spd=mk('spd',4); m.spe=mk('spe',5);
  if(old&&m.hp!==undefined) m.hp=Math.min(m.maxhp, m.hp+(m.maxhp-old));
 }
 function expForLv(lv){ return lv*lv*lv; }
@@ -994,6 +1049,13 @@ function arrive(){
  if(t===1 && GS.map==='world'){
   const z=ZONE[GS.py*WORLD_W+GS.px];
   if(z>0 && R()<.12) startWild(z-1);
+ }
+ const em=curMap().encounter;
+ if(em&&t===13&&R()<.09){
+  let tot=0; for(const q of em.pool)tot+=q[1];
+  let r=R()*tot, pick=em.pool[0][0];
+  for(const q of em.pool){ r-=q[1]; if(r<=0){pick=q[0];break;} }
+  startWildMon(mkMon(pick,ri(em.lv[0],em.lv[1])),0);
  }
 }
 // --- linea di vista degli allenatori ---
@@ -1044,7 +1106,7 @@ function cutUpdate(dt){
 const RIVAL_CNT={1:[4,5,6],4:[7,8,9],7:[1,2,3]};
 const RIVAL_BATTLES=[
  {id:'rival1', x0:25,x1:31, y0:180,y1:184, badges:0, money:600,
-  party:s=>[[RIVAL_CNT[s][0],6],[10,6]],
+  party:s=>[[RIVAL_CNT[s][0],8],[10,6]],
   t:'Milo: "Eccoti, cugino di scelte facili! Il mio nuovo compagno scalpita: vediamo chi ha scelto meglio dal laboratorio dello zio!"',
   l:'Uff... hai solo avuto fortuna. Ci rivediamo più avanti!'},
  {id:'rival2', x0:83,x1:89, y0:120,y1:125, badges:2, money:1600,
@@ -1085,7 +1147,11 @@ function interact(){
  if(!n&&(t===15||t===16))n=npcAt(tx+dx,ty+dy);
  if(n){ n.dir=(GS.dir+2)%4; npcAction(n); return; }
  if(t===7 && curMap().signs[skey]){ say(curMap().signs[skey]); return; }
- if(t===20){ altare(); return; }
+ if(t===20){
+  const alt=curMap().altars&&curMap().altars[skey];
+  if(alt){ legendAltar(alt); return; }
+  altare(); return;
+ }
  if(t===17){ pcBox(); return; }
 }
 function npcAction(n){
@@ -1114,6 +1180,14 @@ function npcAction(n){
  }
  say(n.text||'...');
 }
+function legendAltar(alt){
+ if(GS.flags[alt.flag]){ say('L\'altare è ormai silenzioso.'); return; }
+ if(!GS.flags.champion){ say('Una forza antica ti respinge... Solo il Campione di Valmora può risvegliare ciò che dorme qui.'); return; }
+ say(alt.t, ()=>{
+  GS.flags[alt.flag]=true;
+  startWildMon(mkMon(alt.id,55), 0);
+ });
+}
 function altare(){
  if(!GS.flags.teamDone){
   if(GS.badges.length<7){
@@ -1140,7 +1214,7 @@ function profTalk(){
  } else if(GS.badges.length>=8 && !GS.flags.champion){
   say('Prof. Cedro: "Otto medaglie! Straordinario! La Lega Valmora ti attende a nord-ovest. Rendi orgogliosa Borgofoglia!"');
  } else if(GS.flags.champion){
-  say('Prof. Cedro: "Il Campione di Valmora in persona! Il tuo Dex conta '+Object.keys(GS.dex.caught).length+' creature catturate su 54. La ricerca continua!"');
+  say('Prof. Cedro: "Il Campione di Valmora in persona! Il tuo Dex conta '+Object.keys(GS.dex.caught).length+' creature catturate su '+DEX.length+'. La ricerca continua!"');
  } else {
   say('Prof. Cedro: "Come procede il viaggio? Le palestre ti metteranno alla prova. E riempi il Dex per me!"');
  }
@@ -1361,6 +1435,17 @@ function beep(kind){
 
 // ---------- menu ----------
 function openStartMenu(){ menuState={kind:'start',sel:0}; GS.mode='menu'; sfx('menu'); }
+const NAME_CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-';
+function openNaming(target,mon,cb){
+ menuState={kind:'name',target,mon,cb,buf:'',sel:0};
+ GS.mode='menu'; sfx('menu');
+}
+function askNickname(m){
+ menuState={kind:'yesno',sel:0,q:'Vuoi dare un soprannome a '+SP(m.id).n+'?',
+  yes:()=>{ openNaming('mon',m); },
+  no:()=>{ menuState=null; GS.mode='world'; }};
+ GS.mode='menu';
+}
 function openShop(){ menuState={kind:'shop',sel:0}; GS.mode='menu'; sfx('menu'); }
 const START_ITEMS=['DEX','SQUADRA','ZAINO','MAPPA','ALLENATORE','SALVA','CHIUDI'];
 let MINIMAP=null;
@@ -1501,7 +1586,7 @@ function menuInput(ev){
    GS.party.push(mon); GS.flags.starter=true; GS.flags.starterId=id;
    GS.dex.seen[id]=1; GS.dex.caught[id]=1;
    menuState=null;
-   say('Hai scelto '+SP(id).n+'! Il Prof. Cedro ti regala anche 5 Valsfere e 3 Pozioni. Che il viaggio abbia inizio!',()=>{GS.mode='world';});
+   say('Hai scelto '+SP(id).n+'! Il Prof. Cedro ti regala anche 5 Valsfere e 3 Pozioni. Che il viaggio abbia inizio!',()=>{GS.mode='world'; askNickname(mon);});
   }
  }
  else if(M.kind==='shop'){
@@ -1518,26 +1603,69 @@ function menuInput(ev){
   }
  }
  else if(M.kind==='box'){
-  const n=GS.party.length+GS.box.length;
-  if(ev==='U'){M.sel=(M.sel+n-1)%n;sfx('menu');}
-  else if(ev==='D'){M.sel=(M.sel+1)%n;sfx('menu');}
-  else if(ev==='B'){sfx('b');menuState=null;GS.mode='world';}
-  else if(ev==='A'){
-   sfx('a');
-   if(M.sel<GS.party.length){
+  const perPage=20, cols=5;
+  if(M.page===undefined){M.page=0;M.area='party';M.sel=0;}
+  const pages=Math.max(1,Math.ceil((GS.box.length+1)/perPage));
+  if(ev==='B'){sfx('b');menuState=null;GS.mode='world';}
+  else if(M.area==='party'){
+   const n=Math.max(1,GS.party.length);
+   if(ev==='U'){M.sel=(M.sel+n-1)%n;sfx('menu');}
+   else if(ev==='D'){M.sel=(M.sel+1)%n;sfx('menu');}
+   else if(ev==='R'){M.area='grid';M.sel=0;sfx('menu');}
+   else if(ev==='A'){
     if(GS.party.length<=1){say('Non puoi depositare l\'ultima creatura della squadra!');return;}
-    const mon=GS.party.splice(M.sel,1)[0]; GS.box.push(mon);
-   } else {
-    if(GS.party.length>=6){say('La squadra è al completo (6)!');return;}
-    const mon=GS.box.splice(M.sel-GS.party.length,1)[0]; mon.hp=mon.maxhp; GS.party.push(mon);
+    sfx('a');
+    const mon=GS.party.splice(M.sel,1)[0];
+    GS.box.push(mon);
+    M.sel=Math.min(M.sel,GS.party.length-1);
    }
-   M.sel=0;
+  } else {
+   if(ev==='L'){
+    if(M.sel%cols===0){
+     if(M.page>0){M.page--;M.sel+=cols-1;sfx('menu');}
+     else {M.area='party';M.sel=0;sfx('menu');}
+    } else {M.sel--;sfx('menu');}
+   }
+   else if(ev==='R'){
+    if(M.sel%cols===cols-1){ if(M.page<pages-1){M.page++;M.sel-=cols-1;sfx('menu');} }
+    else {M.sel++;sfx('menu');}
+   }
+   else if(ev==='U'){M.sel=(M.sel+perPage-cols)%perPage;sfx('menu');}
+   else if(ev==='D'){M.sel=(M.sel+cols)%perPage;sfx('menu');}
+   else if(ev==='A'){
+    const idx=M.page*perPage+M.sel;
+    const mon=GS.box[idx];
+    if(!mon){sfx('b');return;}
+    if(GS.party.length>=6){say('La squadra è al completo (6)!');return;}
+    sfx('a');
+    GS.box.splice(idx,1);
+    mon.hp=mon.maxhp;
+    GS.party.push(mon);
+   }
   }
  }
  else if(M.kind==='yesno'){
   if(ev==='U'||ev==='D'){M.sel=1-(M.sel||0);sfx('menu');}
   else if(ev==='A'){ sfx('a'); const f=(M.sel||0)===0?M.yes:M.no; menuState=null; f(); }
   else if(ev==='B'){ sfx('b'); const f=M.no; menuState=null; f(); }
+ }
+ else if(M.kind==='name'){
+  const N=NAME_CHARS.length, TOT=N+2;
+  if(ev==='L'){M.sel=(M.sel+TOT-1)%TOT;sfx('menu');}
+  else if(ev==='R'){M.sel=(M.sel+1)%TOT;sfx('menu');}
+  else if(ev==='U'){M.sel=Math.max(0,M.sel-10);sfx('menu');}
+  else if(ev==='D'){M.sel=Math.min(TOT-1,M.sel+10);sfx('menu');}
+  else if(ev==='B'){ if(M.buf.length)M.buf=M.buf.slice(0,-1); sfx('b'); }
+  else if(ev==='S'||ev==='A'&&M.sel===N+1){
+   const nm=M.buf.trim();
+   menuState=null; sfx('a');
+   if(M.target==='player'){ GS.name=nm||'ALEX'; GS.mode='world'; if(M.cb)M.cb(); }
+   else { if(nm)M.mon.nick=nm; GS.mode='world'; say(nm?(SP(M.mon.id).n+' ora si chiama '+nm+'!'):'Nessun soprannome assegnato.'); }
+  }
+  else if(ev==='A'){
+   if(M.sel<N){ if(M.buf.length<8){M.buf+=NAME_CHARS[M.sel];sfx('menu');} else sfx('b'); }
+   else if(M.sel===N){ if(M.buf.length)M.buf=M.buf.slice(0,-1); sfx('b'); }
+  }
  }
  else if(M.kind==='learn'){
   if(ev==='U'){M.sel=(M.sel+4)%5;sfx('menu');}
@@ -1548,35 +1676,52 @@ function menuInput(ev){
     const old=MOVES[mon.moves[M.sel].k].n;
     mon.moves[M.sel]={k:M.move,pp:MOVES[M.move].pp};
     sfx('lvl'); menuState=null;
-    say(mon&&SP(mon.id).n+' dimentica '+old+' e impara '+MOVES[M.move].n+'!', M.cb);
-   } else { sfx('b'); menuState=null; say(SP(M.mon.id).n+' non impara '+MOVES[M.move].n+'.', M.cb); }
+    say(mon&&mname(mon)+' dimentica '+old+' e impara '+MOVES[M.move].n+'!', M.cb);
+   } else { sfx('b'); menuState=null; say(mname(M.mon)+' non impara '+MOVES[M.move].n+'.', M.cb); }
   }
  }
 }
 function useItemOn(k, idx, ctx){
  const it=ITEMS[k], mon=GS.party[idx];
+ if(it.stone){
+  if(ctx==='battle'){ menuState=null; say('Non durante la lotta!', ()=>{GS.mode='battle';battleMenuBack();}); return; }
+  const to=STONE_EVO[k]&&STONE_EVO[k][mon.id];
+  if(!to){ menuState=null; say('Non ha alcun effetto su '+mname(mon)+'.'); return; }
+  GS.bag[k]--;
+  menuState=null;
+  const oldName=mname(mon);
+  say('Che succede? '+oldName+' si sta evolvendo!',()=>{
+   const ratio=mon.hp/mon.maxhp;
+   mon.id=to; mon.abil=ABIL[to]||null; recalcStats(mon);
+   mon.hp=Math.max(1,Math.floor(mon.maxhp*ratio));
+   GS.dex.seen[to]=1; GS.dex.caught[to]=1;
+   sfx('evolve');
+   say(oldName+' si è evoluto in '+SP(to).n+'!');
+  });
+  return;
+ }
  if(it.hold){
   if(ctx==='battle'){ menuState=null; say('Non puoi assegnare strumenti durante la lotta!', ()=>{GS.mode='battle';battleMenuBack();}); return; }
   const prev=mon.held;
   mon.held=k; GS.bag[k]--;
   if(prev)GS.bag[prev]=(GS.bag[prev]||0)+1;
   sfx('a'); menuState=null;
-  say(SP(mon.id).n+' ora tiene: '+it.n+'.'+(prev?' (Hai ripreso '+ITEMS[prev].n+'.)':''));
+  say(mname(mon)+' ora tiene: '+it.n+'.'+(prev?' (Hai ripreso '+ITEMS[prev].n+'.)':''));
   return;
  }
  let ok=false, msg='';
  if(it.heal){
   if(mon.hp<=0)msg='È esausto! Serve un Revitalizzante.';
   else if(mon.hp>=mon.maxhp)msg='Ha già tutti i PS!';
-  else { mon.hp=Math.min(mon.maxhp,mon.hp+it.heal); ok=true; msg=SP(mon.id).n+' recupera PS!'; }
+  else { mon.hp=Math.min(mon.maxhp,mon.hp+it.heal); ok=true; msg=mname(mon)+' recupera PS!'; }
  } else if(it.cure){
   if(mon.hp<=0)msg='È esausto!';
   else if(!mon.status)msg='Non ha stati alterati!';
-  else if(it.cure==='ALL'||it.cure===mon.status){ mon.status=null; ok=true; msg=SP(mon.id).n+' sta di nuovo bene!'; }
+  else if(it.cure==='ALL'||it.cure===mon.status){ mon.status=null; ok=true; msg=mname(mon)+' sta di nuovo bene!'; }
   else msg='Non è la cura giusta!';
  } else if(it.revive){
   if(mon.hp>0)msg='Non è esausto!';
-  else { mon.hp=Math.floor(mon.maxhp*it.revive); mon.status=null; ok=true; msg=SP(mon.id).n+' si rianima!'; }
+  else { mon.hp=Math.floor(mon.maxhp*it.revive); mon.status=null; ok=true; msg=mname(mon)+' si rianima!'; }
  }
  if(ok){ GS.bag[k]--; sfx('heal'); }
  menuState=null;
@@ -1931,7 +2076,7 @@ function drawMenu(){
    ctx.fillStyle= mon.hp>0?'#4888d8':'#687080'; ctx.fillRect(18,y+15,VW-36,24);
    if(M.kind==='swap'&&i===M.from){ctx.strokeStyle='#f8f048';ctx.lineWidth=3;ctx.strokeRect(17,y+1,VW-34,39);}
    drawMonIcon(ctx,mon.id,24,y+3,36,36);
-   txt(sp.n,70,y+4,'#f8f8f8',13);
+   txt(mname(mon),70,y+4,'#f8f8f8',13);
    txt('L'+mon.lv,190,y+4,'#f8f8f8',12);
    hpBar(70,y+22,150,mon);
    txt(mon.hp+'/'+mon.maxhp,232,y+22,'#f8f8f8',11);
@@ -1948,7 +2093,8 @@ function drawMenu(){
   box(8,8,VW-16,VH-16);
   txt('SCHEDA — pagina '+(pg+1)+'/2   (◀▶ cambia)',24,14,'#385890',11);
   drawMon(ctx,mon.id,40,36,96,96,mon.shiny);
-  txt(sp.n+'   Liv.'+mon.lv,40,140,'#303030',15);
+  txt(mname(mon)+'   Liv.'+mon.lv,40,140,'#303030',15);
+  if(mon.nick)txt('('+sp.n+')',40,158,'#909090',9);
   if(mon.shiny)txt('★',20,140,'#e8b820',15);
   let tx=40; for(const t of sp.t){ ctx.fillStyle=TYPES[t].c; ctx.fillRect(tx,162,64,16); txt(TYPES[t].n,tx+4,164,'#fff',11); tx+=70; }
   statusTag(mon,150,140);
@@ -1969,6 +2115,8 @@ function drawMenu(){
    txt('PS  '+mon.hp+'/'+mon.maxhp,40,192);
    txt('ATT '+mon.atk+'  DIF '+mon.def+'  VEL '+mon.spe,40,212,'#303030',12);
    txt('ATSP '+mon.spa+'  DFSP '+mon.spd,40,230,'#303030',12);
+   const nt=NATURES[mon.nat||0];
+   txt('Natura: '+nt.n+(nt.up?' (+'+STAT_N[nt.up].slice(0,3)+'/−'+STAT_N[nt.dn].slice(0,3)+')':''),40,248,'#606060',10);
    txt('MOSSE',240,36,'#385890',14);
    mon.moves.forEach((mv,i)=>{
     const mo=MOVES[mv.k];
@@ -2023,21 +2171,34 @@ function drawMenu(){
  }
  else if(M.kind==='box'){
   drawWorldBehind(); box(8,8,VW-16,VH-16);
-  txt('PC — Deposito creature (Z: sposta, X: esci)',24,16,'#385890',13);
-  txt('SQUADRA',24,40,'#385890',12);
+  const perPage=20, cols=5, pg=M.page||0;
+  const pages=Math.max(1,Math.ceil((GS.box.length+1)/perPage));
+  txt('PC — BOX pagina '+(pg+1)+'/'+pages+'   ('+GS.box.length+' depositate)',24,14,'#385890',12);
+  txt('SQUADRA',24,34,'#385890',11);
   GS.party.forEach((mon,i)=>{
-   const y=58+i*18;
-   if(M.sel===i)txt('▶',20,y,'#c03028');
-   drawMonIcon(ctx,mon.id,34,y-3,18,18);
-   txt(SP(mon.id).n+' L'+mon.lv,56,y,'#303030',12);
+   const y=48+i*40;
+   if(M.area==='party'&&M.sel===i){ctx.fillStyle='#f8e0a0';ctx.fillRect(18,y-3,128,38);}
+   drawMonIcon(ctx,mon.id,24,y,32,32);
+   txt(mname(mon).slice(0,9),60,y+3,'#303030',10);
+   txt('L'+mon.lv,60,y+17,'#606060',9);
+   if(mon.shiny)txt('★',132,y+2,'#e8b820',9);
   });
-  txt('BOX ('+GS.box.length+')',240,40,'#385890',12);
-  GS.box.slice(0,12).forEach((mon,i)=>{
-   const y=58+i*18;
-   if(M.sel===GS.party.length+i)txt('▶',236,y,'#c03028');
-   drawMonIcon(ctx,mon.id,250,y-3,18,18);
-   txt(SP(mon.id).n+' L'+mon.lv,272,y,'#303030',12);
-  });
+  for(let i=0;i<perPage;i++){
+   const gx=166+(i%cols)*58, gy=48+Math.floor(i/cols)*54;
+   ctx.fillStyle='#e6e8f2'; ctx.fillRect(gx,gy,52,48);
+   ctx.strokeStyle=(M.area==='grid'&&M.sel===i)?'#f83030':'#a0a8c0';
+   ctx.lineWidth=(M.area==='grid'&&M.sel===i)?2:1;
+   ctx.strokeRect(gx,gy,52,48);
+   const mon=GS.box[pg*perPage+i];
+   if(mon){
+    drawMonIcon(ctx,mon.id,gx+10,gy+4,32,32);
+    txt('L'+mon.lv,gx+14,gy+36,'#606060',8);
+    if(mon.shiny)txt('★',gx+40,gy+2,'#e8b820',9);
+   }
+  }
+  const selMon=M.area==='party'?GS.party[M.sel]:GS.box[pg*perPage+(M.sel||0)];
+  if(selMon)txt(mname(selMon)+' ('+SP(selMon.id).n+')  L'+selMon.lv+'  '+SP(selMon.id).t.map(t=>TYPES[t].n).join('/'),24,VH-44,'#303030',11);
+  txt('Z: '+(M.area==='party'?'deposita':'preleva')+'   frecce: naviga/pagina   X: chiudi',24,VH-28,'#606060',10);
  }
  else if(M.kind==='yesno'){
   if(battle)drawBattle(); else drawWorldBehind();
@@ -2048,11 +2209,30 @@ function drawMenu(){
    txt(o,166+i*90,VH-104,'#303030',13);
   });
  }
+ else if(M.kind==='name'){
+  drawWorldBehind(); box(40,24,VW-80,VH-48);
+  txt(M.target==='player'?'Come ti chiami?':'Soprannome per '+SP(M.mon.id).n+':',60,40,'#385890',14);
+  let shown=M.buf;
+  while(shown.length<8)shown+='_';
+  txt(shown.split('').join(' '),60,70,'#303030',18);
+  const N=NAME_CHARS.length;
+  for(let i=0;i<N;i++){
+   const x=64+(i%10)*36, y=108+Math.floor(i/10)*30;
+   if(M.sel===i){ctx.fillStyle='#f8e0a0';ctx.fillRect(x-6,y-4,26,24);}
+   txt(NAME_CHARS[i],x,y,'#303030',14);
+  }
+  const cy2=108+Math.ceil(N/10)*30+4;
+  if(M.sel===N){ctx.fillStyle='#f8e0a0';ctx.fillRect(56,cy2-4,74,24);}
+  txt('CANC',60,cy2,'#c03028',13);
+  if(M.sel===N+1){ctx.fillStyle='#f8e0a0';ctx.fillRect(146,cy2-4,64,24);}
+  txt('FINE',150,cy2,'#38a038',13);
+  txt('Z: scegli   X: cancella   Invio: conferma',60,VH-46,'#606060',10);
+ }
  else if(M.kind==='learn'){
   if(battle)drawBattle();
   box(60,40,VW-120,VH-80);
   const mon=M.mon;
-  txt(SP(mon.id).n+' vuole imparare '+MOVES[M.move].n+'!',80,56,'#303030',13);
+  txt(mname(mon)+' vuole imparare '+MOVES[M.move].n+'!',80,56,'#303030',13);
   txt('Quale mossa dimentica?',80,76,'#606060',12);
   mon.moves.forEach((mv,i)=>{
    const y=100+i*24;
@@ -2088,8 +2268,8 @@ function startWildMon(mon, routeIdx){
  initHp(battle.you); initHp(mon);
  resetStages(battle.you); resetStages(mon);
  GS.mode='battle'; sfx('super'); playMusic('battle');
- bqa('Un '+SP(mon.id).n+' selvatico'+(mon.shiny?' ✨ CROMATICO ✨':'')+'! (Liv.'+mon.lv+')','sendF',400,()=>cry(mon.id));
- bqa('Vai, '+SP(battle.you.id).n+'!','sendY',400,()=>cry(battle.you.id),()=>{ battle.phase='menu'; });
+ bqa('Un '+mname(mon)+' selvatico'+(mon.shiny?' ✨ CROMATICO ✨':'')+'! (Liv.'+mon.lv+')','sendF',400,()=>cry(mon.id));
+ bqa('Vai, '+mname(battle.you)+'!','sendY',400,()=>cry(battle.you.id),()=>{ battle.phase='menu'; });
  if(battle.weather)bq(WEATHER_MSG[battle.weather]);
  onEntry(battle.foe); onEntry(battle.you);
 }
@@ -2123,8 +2303,8 @@ function startTrainerBattle(tr){
  GS.dex.seen[battle.foe.id]=1;
  GS.mode='battle'; sfx('super'); playMusic('battle');
  bq(tr.name+' ti sfida!');
- bqa(tr.name+' manda in campo '+SP(battle.foe.id).n+(battle.double?' e '+SP(battle.foe2.id).n:'')+'!','sendF',400,()=>cry(battle.foe.id));
- bqa('Vai, '+SP(battle.you.id).n+(battle.double?' e '+SP(battle.you2.id).n:'')+'!','sendY',400,()=>cry(battle.you.id),()=>{ battle.phase='menu'; });
+ bqa(tr.name+' manda in campo '+mname(battle.foe)+(battle.double?' e '+mname(battle.foe2):'')+'!','sendF',400,()=>cry(battle.foe.id));
+ bqa('Vai, '+mname(battle.you)+(battle.double?' e '+mname(battle.you2):'')+'!','sendY',400,()=>cry(battle.you.id),()=>{ battle.phase='menu'; });
  if(battle.weather)bq(WEATHER_MSG[battle.weather]);
  onEntry(battle.foe); onEntry(battle.you);
  if(battle.double){ onEntry(battle.foe2); onEntry(battle.you2); }
@@ -2148,7 +2328,7 @@ function onEntry(m){
  if(m.abil==='Intimidazione'){
   const opps=(playerSide(m)?[battle.foe,battle.foe2]:[battle.you,battle.you2]).filter(x=>x&&x.hp>0);
   for(const o of opps){
-   bq(SP(m.id).n+' intimidisce '+SP(o.id).n+'!');
+   bq(mname(m)+' intimidisce '+mname(o)+'!');
    applyStage(o,'atk',-1,playerSide(o));
   }
  }
@@ -2157,7 +2337,7 @@ function berry(m){
  if(m&&m.held==='baccaoran'&&m.hp>0&&m.hp<=m.maxhp/2){
   m.held=null;
   m.hp=Math.min(m.maxhp,m.hp+15);
-  bq(SP(m.id).n+' mangia la sua Baccaoran!'); visHp(m);
+  bq(mname(m)+' mangia la sua Baccaoran!'); visHp(m);
  }
 }
 function resetStages(m){ m.stages={atk:0,def:0,spa:0,spd:0,spe:0,acc:0,eva:0}; m.slpTurns=0; m.conf=0; m.flinched=false; }
@@ -2277,18 +2457,18 @@ function doSwitch(idx){
  if(b.freeSwitch){
   b.freeSwitch=false;
   b.you=GS.party[idx]; resetStages(b.you); initHp(b.you);
-  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ if(b.you){b.you.down=false;} onEntry(b.you); });
+  bqa('Vai, '+mname(b.you)+'!','sendY',400,()=>{ if(b.you){b.you.down=false;} onEntry(b.you); });
   sendNextFoe();
   return;
  }
  if(b.forceSwitch){
   b.forceSwitch=false;
   b.you=GS.party[idx]; resetStages(b.you); initHp(b.you);
-  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ if(b.you){b.you.down=false;} onEntry(b.you); },()=>{ b.phase='menu'; });
+  bqa('Vai, '+mname(b.you)+'!','sendY',400,()=>{ if(b.you){b.you.down=false;} onEntry(b.you); },()=>{ b.phase='menu'; });
  } else {
-  bq(SP(b.you.id).n+', torna indietro!');
+  bq(mname(b.you)+', torna indietro!');
   b.you=GS.party[idx]; resetStages(b.you); initHp(b.you);
-  bqa('Vai, '+SP(b.you.id).n+'!','sendY',400,()=>{ if(b.you){b.you.down=false;} onEntry(b.you); });
+  bqa('Vai, '+mname(b.you)+'!','sendY',400,()=>{ if(b.you){b.you.down=false;} onEntry(b.you); });
   foeTurnOnly();
  }
 }
@@ -2357,7 +2537,7 @@ function foeSmartAction(){
  if(b.foePotions>0&&b.foe.hp>0&&b.foe.hp<=b.foe.maxhp*0.3){
   b.foePotions--;
   b.foe.hp=Math.min(b.foe.maxhp,b.foe.hp+60);
-  bq(b.trainer.name+' usa una Superpozione su '+SP(b.foe.id).n+'!',()=>sfx('heal'));
+  bq(b.trainer.name+' usa una Superpozione su '+mname(b.foe)+'!',()=>sfx('heal'));
   visHp(b.foe);
   return true;
  }
@@ -2370,11 +2550,11 @@ function foeSmartAction(){
     b.foeParty[ci]=b.foeParty[b.foeIdx];
     b.foeParty[b.foeIdx]=cand;
     b.aiSwitched=(b.aiSwitched||0)+1;
-    bq(b.trainer.name+' richiama '+SP(b.foe.id).n+'!');
+    bq(b.trainer.name+' richiama '+mname(b.foe)+'!');
     b.foe=cand;
     resetStages(b.foe); initHp(b.foe);
     GS.dex.seen[b.foe.id]=1;
-    bqa(b.trainer.name+' manda in campo '+SP(b.foe.id).n+'!','sendF',400,()=>{ b.foe.down=false; cry(b.foe.id); onEntry(b.foe); });
+    bqa(b.trainer.name+' manda in campo '+mname(b.foe)+'!','sendF',400,()=>{ b.foe.down=false; cry(b.foe.id); onEntry(b.foe); });
     return true;
    }
   }
@@ -2523,18 +2703,18 @@ function execMove(user,tgt,mv,isYou){
 const STAT_N={atk:'Attacco',def:'Difesa',spa:'Att. Speciale',spd:'Dif. Speciale',spe:'Velocità',acc:'Precisione',eva:'Elusione'};
 const ST_MSG={PSN:'è avvelenato!',PAR:'è paralizzato!',SLP:'si addormenta!',BRN:'è scottato!',FRZ:'è congelato!'};
 function applyStatus(m,st,isFoe){
- if(st==='SLP'&&m.abil==='Insonnia'){ bq(SP(m.id).n+' non può addormentarsi! (Insonnia)'); return; }
+ if(st==='SLP'&&m.abil==='Insonnia'){ bq(mname(m)+' non può addormentarsi! (Insonnia)'); return; }
  m.status=st;
  if(st==='SLP')m.slpTurns=ri(1,3);
- bq((isFoe?'Il nemico ':'')+SP(m.id).n+' '+ST_MSG[st]);
- if(m.held==='baccacura'){ m.held=null; m.status=null; bq(SP(m.id).n+' si cura con la Baccacura!'); }
+ bq((isFoe?'Il nemico ':'')+mname(m)+' '+ST_MSG[st]);
+ if(m.held==='baccacura'){ m.held=null; m.status=null; bq(mname(m)+' si cura con la Baccacura!'); }
 }
 function applyStage(m,stat,d,isYouSide){
  const cur=m.stages[stat];
  const nv=Math.max(-6,Math.min(6,cur+d));
  if(nv===cur){ bq('Ma non ha effetto!'); return; }
  m.stages[stat]=nv;
- const n=SP(m.id).n;
+ const n=mname(m);
  bq(n+': '+STAT_N[stat]+(d>0?(d>1?' sale di molto!':' sale!'):' scende!'));
 }
 function endTurnStatus(){
@@ -2546,7 +2726,7 @@ function endTurnStatus(){
   if(m.status==='PSN'||m.status==='BRN'){
    const chip=Math.max(1,Math.floor(m.maxhp/(m.status==='PSN'?8:16)));
    m.hp=Math.max(0,m.hp-chip);
-   bq((isYou?'':'Il nemico ')+SP(m.id).n+(m.status==='PSN'?' soffre per il veleno!':' soffre per la scottatura!'),()=>sfx('hit'));
+   bq((isYou?'':'Il nemico ')+mname(m)+(m.status==='PSN'?' soffre per il veleno!':' soffre per la scottatura!'),()=>sfx('hit'));
    visHp(m); berry(m);
    if(m.hp<=0)handleFaint(m,!isYou);
   }
@@ -2559,7 +2739,7 @@ function endTurnStatus(){
    if(immune)continue;
    const chip=Math.max(1,Math.floor(m.maxhp/16));
    m.hp=Math.max(0,m.hp-chip);
-   bq((playerSide(m)?'':'Il nemico ')+SP(m.id).n+(b.weather==='hail'?' è colpito dalla grandine!':' è sferzato dalla sabbia!'),()=>sfx('hit'));
+   bq((playerSide(m)?'':'Il nemico ')+mname(m)+(b.weather==='hail'?' è colpito dalla grandine!':' è sferzato dalla sabbia!'),()=>sfx('hit'));
    visHp(m); berry(m);
    if(m.hp<=0)handleFaint(m,!playerSide(m));
   }
@@ -2571,7 +2751,7 @@ function handleFaint(m,wasTargetOfYou){
  m.faintQueued=true;
  const isFoeMon = (m===b.foe)|| (b.foeParty&&b.foeParty.includes(m));
  bqanim(isFoeMon?'faintF':'faintY',450,()=>{sfx('faint');cry(m.id,true);},()=>{ m.down=true; });
- bq((isFoeMon?'Il nemico ':'')+SP(m.id).n+' è esausto!');
+ bq((isFoeMon?'Il nemico ':'')+mname(m)+' è esausto!');
  if(isFoeMon)foeFainted(m); else youFainted(m);
 }
 function foeFainted(fm){
@@ -2583,9 +2763,13 @@ function foeFainted(fm){
  let list=[...(b.parts||[])].map(i=>GS.party[i]).filter(m=>m&&m.hp>0);
  if(!list.length)list=[b.you];
  const each=Math.max(1,Math.floor(total/list.length));
+ const evStat=['hp','atk','def','spa','spd','spe'][sp.bs.indexOf(Math.max(...sp.bs))];
  for(const mon of list){
   mon.exp+=each;
-  bq(SP(mon.id).n+' guadagna '+each+' Esp.!');
+  if(!mon.ev)mon.ev={hp:0,atk:0,def:0,spa:0,spd:0,spe:0};
+  const totEv=Object.values(mon.ev).reduce((a,b2)=>a+b2,0);
+  if(totEv<510&&mon.ev[evStat]<252){ mon.ev[evStat]+=2; recalcStats(mon); }
+  bq(mname(mon)+' guadagna '+each+' Esp.!');
   checkLevelUps(mon);
  }
  afterFoeFaint(fm);
@@ -2597,13 +2781,13 @@ function sendNextFoe(){
  resetStages(b.foe);
  GS.dex.seen[b.foe.id]=1;
  b.parts=new Set([GS.party.indexOf(b.you)]);
- bqa(b.trainer.name+' manda in campo '+SP(b.foe.id).n+'!','sendF',400,()=>{ initHp(b.foe); b.foeHidden=false; cry(b.foe.id); onEntry(b.foe); },()=>{ b.phase='menu'; });
+ bqa(b.trainer.name+' manda in campo '+mname(b.foe)+'!','sendF',400,()=>{ initHp(b.foe); b.foeHidden=false; cry(b.foe.id); onEntry(b.foe); },()=>{ b.phase='menu'; });
 }
 function checkLevelUps(mon){
  while(mon.lv<100&&mon.exp>=expForLv(mon.lv+1)){
   mon.lv++;
   recalcStats(mon);
-  bq(SP(mon.id).n+' sale al livello '+mon.lv+'!',()=>sfx('lvl'));
+  bq(mname(mon)+' sale al livello '+mon.lv+'!',()=>sfx('lvl'));
   if(battle)visHp(mon);
   // nuove mosse
   const sp=SP(mon.id);
@@ -2611,10 +2795,10 @@ function checkLevelUps(mon){
    if(lv===mon.lv&&!mon.moves.some(m=>m.k===k)){
     if(mon.moves.length<4){
      mon.moves.push({k,pp:MOVES[k].pp});
-     bq(SP(mon.id).n+' impara '+MOVES[k].n+'!',()=>sfx('lvl'));
+     bq(mname(mon)+' impara '+MOVES[k].n+'!',()=>sfx('lvl'));
     } else {
      const kk=k;
-     bq(SP(mon.id).n+' vorrebbe imparare '+MOVES[kk].n+', ma conosce già 4 mosse!',null,()=>{
+     bq(mname(mon)+' vorrebbe imparare '+MOVES[kk].n+', ma conosce già 4 mosse!',null,()=>{
       menuState={kind:'learn',mon,move:kk,sel:0,cb:()=>{ GS.mode='battle'; }};
       GS.mode='menu';
      });
@@ -2705,7 +2889,7 @@ function youFainted(m){
    const nx=GS.party[bi];
    if(slot2)b.you2=nx; else b.you=nx;
    resetStages(nx); initHp(nx); b.parts.add(bi);
-   bqa('Vai, '+SP(nx.id).n+'!','sendY',400,()=>{ nx.down=false; cry(nx.id); onEntry(nx); });
+   bqa('Vai, '+mname(nx)+'!','sendY',400,()=>{ nx.down=false; cry(nx.id); onEntry(nx); });
   };
   if(m===b.you2){
    if(bi>=0)send(true); else b.you2=null;
@@ -2771,7 +2955,7 @@ function throwBall(k){
   bq(sp.n+' è stato catturato!');
   if(wasFull)bq('La squadra è piena: '+sp.n+' è stato inviato al BOX del PC.');
   bq('I dati di '+sp.n+' sono stati registrati nel VALDEX!');
-  bq('',null,endBattleCleanup);
+  bq('',null,()=>{ const cm=m; endBattleCleanup(); askNickname(cm); });
  } else {
   bqanim('burst',350,()=>{ if(battle)battle.foeHidden=false; sfx('super'); });
   const msgs=['Oh no! La creatura si è liberata!','Accidenti! C\'era quasi!','Argh! Si dimena troppo!'];
@@ -2800,11 +2984,11 @@ function drawBattle(){
   }
   box(10,10,206,66);
   [[b.foe,0],[b.foe2,1]].forEach(q=>{ const m=q[0]; if(!m)return; const y=17+q[1]*26;
-   txt(SP(m.id).n,20,y,'#303030',11); txt('L'+m.lv,126,y,'#303030',10);
+   txt(mname(m),20,y,'#303030',11); txt('L'+m.lv,126,y,'#303030',10);
    hpBar(20,y+11,102,{hp:m.dhp??m.hp,maxhp:m.maxhp}); statusTag(m,152,y+8); });
   box(VW-220,VH-148,210,66);
   [[b.you,0],[b.you2,1]].forEach(q=>{ const m=q[0]; if(!m)return; const y=VH-141+q[1]*26;
-   txt(SP(m.id).n,VW-210,y,'#303030',11); txt('L'+m.lv,VW-104,y,'#303030',10);
+   txt(mname(m),VW-210,y,'#303030',11); txt('L'+m.lv,VW-104,y,'#303030',10);
    hpBar(VW-210,y+11,102,{hp:m.dhp??m.hp,maxhp:m.maxhp}); statusTag(m,VW-78,y+8); });
  } else {
  const sh=b.shake>0? (R()*6-3):0;
@@ -2842,7 +3026,7 @@ function drawBattle(){
   ctx.fillText('★',322,104-stars*26); ctx.fillText('★',346,96-stars*32); ctx.fillText('★',372,104-stars*26); ctx.globalAlpha=1; }
  // box info nemico
  box(14,14,190,58);
- txt(SP(b.foe.id).n,24,22,'#303030',13);
+ txt(mname(b.foe),24,22,'#303030',13);
  if(b.foe.shiny)txt('★',150,22,'#e8b820',12);
  txt('L'+b.foe.lv,160,22,'#303030',12);
  const fmon={hp:b.foe.dhp??b.foe.hp,maxhp:b.foe.maxhp};
@@ -2850,7 +3034,7 @@ function drawBattle(){
  statusTag(b.foe,24,54);
  // box info tuo
  box(VW-210,VH-146,196,70);
- txt(SP(b.you.id).n,VW-198,VH-138,'#303030',13);
+ txt(mname(b.you),VW-198,VH-138,'#303030',13);
  if(b.you.shiny)txt('★',VW-70,VH-138,'#e8b820',12);
  txt('L'+b.you.lv,VW-50,VH-138,'#303030',12);
  const ymon={hp:b.you.dhp??b.you.hp,maxhp:b.you.maxhp};
@@ -2876,7 +3060,7 @@ function drawBattle(){
   }
  } else if(b.phase==='menu'){
   txt('Cosa deve fare',20,VH-60,'#f8f8f8');
-  txt(SP(b.you.id).n+'?',20,VH-42,'#f8f8f8');
+  txt(mname(b.you)+'?',20,VH-42,'#f8f8f8');
   const opts=['LOTTA','ZAINO','SQUADRA','FUGA'];
   ctx.fillStyle='#f8f8e8'; ctx.fillRect(VW-200,VH-68,188,56);
   ctx.strokeStyle='#385890'; ctx.strokeRect(VW-200,VH-68,188,56);
@@ -2959,6 +3143,10 @@ function newGame(){
  GS.badges=[]; GS.defeated={}; GS.flags={}; GS.dex={seen:{},caught:{}};
  GS.lastHeal={map:'world',x:TOWNS[0].x,y:TOWNS[0].y+1};
  GS.visited={0:1};
+ openNaming('player',null,()=>saluta());
+ return;
+}
+function saluta(){
  say('Benvenuto nella regione di VALMORA! Il laboratorio del Prof. Cedro è l\'edificio col tetto viola, qui a sud. Va\' a trovarlo: ha un regalo per te!');
 }
 const SAVE_KEY='valmora_save_v1';
