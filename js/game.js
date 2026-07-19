@@ -354,20 +354,56 @@ function carveRoute(m, rng, ax,ay,bx,by, ridx){
  const line=(x0,y0,x1,y1)=>{ const dx=Math.sign(x1-x0),dy=Math.sign(y1-y0); let x=x0,y=y0; pts.push([x,y]); while(x!==x1||y!==y1){ if(x!==x1)x+=dx; else y+=dy; pts.push([x,y]); } };
  line(ax,ay,cx,cy); line(cx,cy,bx,by);
  for(const [px,py] of pts){
-  for(let ox=-2;ox<=2;ox++)for(let oy=-2;oy<=2;oy++){
+  for(let ox=-4;ox<=4;ox++)for(let oy=-4;oy<=4;oy++){
    const x=px+ox,y=py+oy;
    if(x<1||y<1||x>=WORLD_W-1||y>=WORLD_H-1)continue;
-   const edge=Math.abs(ox)===2||Math.abs(oy)===2;
+   const d2=Math.max(Math.abs(ox),Math.abs(oy));
    const cur=G(m,x,y);
-   if(edge){
+   if(d2===4){
     if(cur===5)T(m,x,y,0);
-    else if(cur===2&&rng()<.5)T(m,x,y,0);
+    else if(cur===2&&rng()<.3)T(m,x,y,0);
    } else if(cur!==3){
     T(m,x,y,0);
     ZONE[y*WORLD_W+x]=ridx+1;
    }
   }
   T(m,px,py,3); // sentiero centrale
+ }
+ // campi d'erba alta compatti, sfalsati ai lati del sentiero
+ let side=1;
+ for(let i=6;i<pts.length-6;i+=9+Math.floor(rng()*7)){
+  const [px,py]=pts[i];
+  const nx2=pts[Math.min(i+1,pts.length-1)];
+  const horiz = nx2[1]===py && nx2[0]!==px;
+  const fw=3+Math.floor(rng()*3), fh=2+Math.floor(rng()*2);
+  for(let a2=0;a2<(horiz?fw:fh);a2++)for(let b2=0;b2<(horiz?fh:fw);b2++){
+   const x=horiz? px+a2-1 : px+side*(1+b2);
+   const y=horiz? py+side*(1+b2) : py+a2-1;
+   if(G(m,x,y)===0){ T(m,x,y,1); ZONE[y*WORLD_W+x]=ridx+1; }
+  }
+  side=-side;
+ }
+ // isole d'alberi come ostacoli (mai sul sentiero)
+ for(let i=12;i<pts.length-12;i+=13+Math.floor(rng()*9)){
+  const [px,py]=pts[i];
+  const ox=rng()<.5?-3:2, oy=rng()<.5?-3:2;
+  for(let a2=0;a2<2;a2++)for(let b2=0;b2<2;b2++){
+   const x=px+ox+a2,y=py+oy+b2;
+   if(G(m,x,y)===0)T(m,x,y,2);
+  }
+ }
+ // staccionate lungo alcuni tratti orizzontali (lato nord)
+ for(let i=8;i<pts.length-10;i++){
+  const f0=pts[i], f1=pts[i+1];
+  if(f1[1]===f0[1]&&Math.abs(f1[0]-f0[0])===1&&rng()<.05){
+   const len=4+Math.floor(rng()*4);
+   for(let k=0;k<len&&i+k<pts.length-1;k++){
+    const h=pts[i+k];
+    if(pts[i+k+1][1]!==h[1])break;
+    if(G(m,h[0],h[1]-2)===0)T(m,h[0],h[1]-2,6);
+   }
+   i+=len+8;
+  }
  }
  // sporgenze saltabili sotto i tratti orizzontali
  for(let i=6;i<pts.length-8;i++){
@@ -377,19 +413,17 @@ function carveRoute(m, rng, ax,ay,bx,by, ridx){
    for(let k=0;k<len&&i+k<pts.length-1;k++){
     const h=pts[i+k];
     if(pts[i+k+1][1]!==h[1])break;
-    if(G(m,h[0],h[1]+1)===0&&G(m,h[0],h[1]+2)===0)T(m,h[0],h[1]+1,21);
+    if(G(m,h[0],h[1]+2)===0&&G(m,h[0],h[1]+3)===0)T(m,h[0],h[1]+2,21);
    }
    i+=len+5;
   }
  }
- // ciuffi d'erba alta
- for(let i=0;i<pts.length;i+=6){
-  if(rng()<.75){
+ // ciuffi sparsi
+ for(let i=0;i<pts.length;i+=8){
+  if(rng()<.5){
    const [px,py]=pts[Math.min(i+Math.floor(rng()*5),pts.length-1)];
-   for(let ox=-1;ox<=1;ox++)for(let oy=-1;oy<=1;oy++){
-    const x=px+ox,y=py+oy;
-    if(G(m,x,y)===0&&rng()<.8){ T(m,x,y,1); ZONE[y*WORLD_W+x]=ridx+1; }
-   }
+   const ox=Math.floor(rng()*7)-3, oy=Math.floor(rng()*7)-3;
+   if(G(m,px+ox,py+oy)===0){ T(m,px+ox,py+oy,1); ZONE[(py+oy)*WORLD_W+(px+ox)]=ridx+1; }
   }
  }
  return pts;
@@ -406,8 +440,59 @@ const BKINDS={
  house4:{w:6,h:4,door:[2,3]}, house5:{w:4,h:4,door:[1,3]},
  house6:{w:5,h:4,door:[1,3]}, house7:{w:4,h:5,door:[1,4]},
  villa:{w:7,h:8,door:null}, sala:{w:10,h:5,door:null},
- fanclub:{w:5,h:5,door:null}, pensione:{w:5,h:5,door:null}
+ fanclub:{w:5,h:5,door:null}, pensione:{w:5,h:5,door:null},
+ torre:{w:7,h:15,door:null}, museo:{w:16,h:8,door:null},
+ magazzino:{w:9,h:11,door:[4,10]}
 };
+// layout individuali delle città (coordinate relative all'angolo in alto a sinistra della radura)
+const TOWN_LAYOUTS=[
+ {w:22,h:16, paths:[[11,0,1,16],[3,9,16,1]],
+  bld:[['house0',2,2,'house0',3,4],['house4',13,2,null],['lab',8,10,'lab',5,7],['center',16,10,'center0',4,5],['market',2,10,'market0',4,5]],
+  fences:[[3,7,7,1]], flowers:[[4,8],[5,8],[13,7],[14,7],[18,8]], trees:[[20,4],[1,13]],
+  signs:[[6,14,'LABORATORIO DEL PROF. CEDRO — Nuovi allenatori benvenuti!']], sign:[9,8], npc:[14,8]},
+ {w:28,h:20, paths:[[0,10,28,1],[14,8,1,12]],
+  bld:[['museo',6,1,null],['center',1,12,'center1',4,5],['market',23,12,'market1',4,5],['gym',17,12,'gym1',5,11],['house1',7,13,'house1',3,4]],
+  fences:[[6,9,6,1],[16,9,6,1]], flowers:[[4,8],[23,9],[24,9]], trees:[[2,3],[3,3],[24,4]],
+  signs:[[13,9,'MUSEO DELLA PIETRA — Fossili e meraviglie di Valmora.']], sign:[12,11], npc:[12,8]},
+ {w:26,h:20, water:[[0,15,26,5]], paths:[[13,0,1,15],[0,10,26,1],[12,15,3,3]],
+  bld:[['center',2,3,'center2',4,5],['market',20,3,'market2',4,5],['gym',8,2,'gym2',5,11],['house2',2,9,'house2',3,4],['fanclub',19,9,null]],
+  fences:[[0,14,3,1],[5,14,7,1],[16,14,10,1]], flowers:[[7,8],[16,3]], trees:[[24,1]],
+  signs:[[18,8,'FAN CLUB DELLE CREATURE — Oggi si parla di pinne e di code.']], sign:[11,12], npc:[16,12]},
+ {w:28,h:22, paths:[[0,11,28,1],[14,11,1,11]],
+  bld:[['magazzino',1,0,'market3',4,5],['center',11,5,'center3',4,5],['gym',22,4,'gym3',5,11],['house3',17,14,'house3',3,4],['house6',22,14,null]],
+  fences:[[16,9,8,1]], flowers:[[16,12],[17,12],[19,12],[20,12],[16,13]],
+  trees:[[9,14],[9,15],[9,16],[9,17],[12,14],[12,15],[12,16],[12,17]],
+  signs:[[10,12,'GRANDE MAGAZZINO DI VOLTACITTÀ — Tutto ciò che serve, su undici piani!']], sign:[12,12], npc:[18,10]},
+ {w:24,h:20, paths:[[0,10,24,1],[12,10,1,10]],
+  bld:[['center',2,2,'center4',4,5],['market',18,2,'market4',4,5],['gym',2,12,'gym4',5,11],['house4',16,12,'house4',3,4],['pensione',8,2,null]],
+  trees:[[7,8],[8,8],[15,8],[16,8],[6,13],[14,17],[9,17],[22,8]],
+  flowers:[[5,8],[10,8],[13,8],[18,8],[3,9],[20,9]],
+  signs:[[7,7,'PENSIONE DI BOSCOVERDE — Presto apriremo agli allevatori!']], sign:[10,12], npc:[15,9]},
+ {w:26,h:20, paths:[[13,0,1,11],[0,10,26,1]], water:[[3,13,3,2],[19,4,2,2]],
+  bld:[['center',2,2,'center5',4,5],['market',20,12,'market5',4,5],['gym',2,12,'gym5',5,11],['house5',7,3,'house5',3,4],['sala',8,13,null]],
+  trees:[[17,4]], flowers:[[17,8],[18,8]],
+  covo:[23,2],
+  signs:[[7,18,'SALA GIOCHI DI TOSSINIA — Chiusa per "ispezione" del Team Ombra.'],[21,3,'COVO DEL TEAM OMBRA — VIETATO L\'INGRESSO!']],
+  sign:[11,12], npc:[16,8]},
+ {w:24,h:20, paths:[[0,10,24,1],[12,0,1,11]],
+  bld:[['center',1,2,'center6',4,5],['market',6,2,'market6',4,5],['gym',1,12,'gym6',5,11],['house6',7,12,'house6',3,4],['torre',16,-4,null]],
+  trees:[[4,7],[8,7]], flowers:[[3,8],[9,8]],
+  signs:[[15,12,'TORRE DELLO SPIRITO — Il riposo delle creature. Rispetta il silenzio.']], sign:[10,12], npc:[15,13]},
+ {w:20,h:16, paths:[[0,8,20,1],[10,8,1,8]],
+  bld:[['center',1,1,'center7',4,5],['market',14,1,'market7',4,5],['gym',13,9,'gym7',5,11],['house7',3,9,'house7',3,4]],
+  fences:[[6,3,6,1]], trees:[[8,11],[9,12],[1,14]], flowers:[[7,4],[8,4]],
+  sign:[8,10], npc:[12,6]},
+ {w:26,h:20, paths:[[13,7,1,13],[0,10,26,1]],
+  bld:[['center',2,3,'center8',4,5],['market',20,3,'market8',4,5],['gym',10,2,'gym8',5,11],['house2',3,12,'house8',3,4]],
+  deco:[[11,8,19],[15,8,19]], trees:[[18,16],[19,17]], flowers:[[9,8],[17,8]],
+  grotta:[22,12],
+  signs:[[20,13,'GROTTA DI VALMORA — I più forti dormono nel profondo. Solo un Campione li desta.']],
+  sign:[11,12], npc:[16,15]},
+ {w:24,h:18, paths:[[0,9,24,1],[12,7,1,11]],
+  bld:[['league',8,2,'league',6,26]],
+  deco:[[10,8,19],[14,8,19]], fences:[[4,5,4,1],[16,5,4,1]], trees:[[2,12],[21,12]], flowers:[[10,10],[14,10]],
+  sign:[10,11], npc:[15,11]}
+];
 function placeBuilding(m,bx,by,kind,warpTo){
  const B=BKINDS[kind];
  for(let y=0;y<B.h;y++)for(let x=0;x<B.w;x++)T(m,bx+x,by+y,25);
@@ -438,42 +523,43 @@ function buildWorld(){
   const [a,b]=ROUTE_LINKS[r];
   routePts[r]=carveRoute(w,rng,TOWNS[a].x,TOWNS[a].y,TOWNS[b].x,TOWNS[b].y,r);
  }
- // città
+ // città: layout individuali
+ const DOORS={}; w.DOORS=DOORS;
  for(let ti=0;ti<TOWNS.length;ti++){
   const tw=TOWNS[ti], cx=tw.x, cy=tw.y;
-  for(let y=cy-9;y<=cy+11;y++)for(let x=cx-13;x<=cx+13;x++){
+  const L=TOWN_LAYOUTS[ti];
+  const x0=cx-(L.w>>1), y0=cy-(L.h>>1);
+  for(let y=y0;y<y0+L.h;y++)for(let x=x0;x<x0+L.w;x++){
    if(x<1||y<1||x>=WORLD_W-1||y>=WORLD_H-1)continue;
    T(w,x,y,0); ZONE[y*WORLD_W+x]=0;
   }
-  for(let x=cx-13;x<=cx+13;x++) T(w,x,cy+1,3);
-  for(let y=cy-9;y<=cy+11;y++) T(w,cx,y,3);
-  // fiori
-  for(let i=0;i<10;i++){ const fx=cx+ri(-12,12), fy=cy+ri(-8,10); if(G(w,fx,fy)===0)T(w,fx,fy,4); }
-  // Centro e Market (tutte le città tranne la Lega)
-  if(!tw.league){
-   placeBuilding(w,cx-9,cy-6,'center',{map:'center'+ti,x:4,y:5});
-   placeBuilding(w,cx+5,cy-6,'market',{map:'market'+ti,x:4,y:5});
+  for(const q of L.water||[])for(let y=0;y<q[3];y++)for(let x=0;x<q[2];x++)T(w,x0+q[0]+x,y0+q[1]+y,5);
+  for(const p of L.paths||[])for(let y=0;y<p[3];y++)for(let x=0;x<p[2];x++)T(w,x0+p[0]+x,y0+p[1]+y,3);
+  for(const f of L.fences||[])for(let y=0;y<f[3];y++)for(let x=0;x<f[2];x++)T(w,x0+f[0]+x,y0+f[1]+y,6);
+  for(const t2 of L.trees||[])T(w,x0+t2[0],y0+t2[1],2);
+  for(const dc of L.deco||[])T(w,x0+dc[0],y0+dc[1],dc[2]);
+  for(const fl of L.flowers||[])T(w,x0+fl[0],y0+fl[1],4);
+  for(const b of L.bld||[]){
+   const warp=b[3]?{map:b[3],x:b[4],y:b[5]}:null;
+   const d=placeBuilding(w,x0+b[1],y0+b[2],b[0],warp);
+   if(b[3]&&d)DOORS[b[3]]=d;
   }
-  if(tw.gym) placeBuilding(w,cx-3,cy+4,'gym',{map:'gym'+ti,x:5,y:11});
-  if(tw.lab) placeBuilding(w,cx-3,cy+4,'lab',{map:'lab',x:5,y:7});
-  if(tw.league) placeBuilding(w,cx-4,cy-6,'league',{map:'league',x:6,y:26});
-  // case
-  if(!tw.league){
-   {
-    const hk='house'+(ti%8), HB=BKINDS[hk];
-    placeBuilding(w,(cx-9)-HB.door[0],(cy+8)-HB.door[1],hk,{map:'house'+ti,x:3,y:4});
-   }
+  if(L.covo){
+   const dx=x0+L.covo[0], dy=y0+L.covo[1];
+   T(w,dx-1,dy,2); T(w,dx+1,dy,2); T(w,dx,dy,8);
+   w.warps[dx+','+dy]={map:'covo',x:7,y:11};
+   DOORS['covo']=[dx,dy];
   }
-  // edifici caratteristici per città
-  if(ti===2){ placeBuilding(w,cx+7,cy+5,'fanclub',null); T(w,cx+6,cy+9,7); w.signs[(cx+6)+','+(cy+9)]='FAN CLUB DELLE CREATURE — Oggi si parla di pinne e di code.'; }
-  if(ti===4){ placeBuilding(w,cx+7,cy+5,'pensione',null); T(w,cx+6,cy+9,7); w.signs[(cx+6)+','+(cy+9)]='PENSIONE DI BOSCOVERDE — Presto apriremo le porte agli allevatori!'; }
-  if(ti===5){ placeBuilding(w,cx+3,cy+6,'sala',null); T(w,cx+2,cy+10,7); w.signs[(cx+2)+','+(cy+10)]='SALA GIOCHI DI TOSSINIA — Chiusa per "ispezione" del Team Ombra.'; }
-  if(ti===6){ placeBuilding(w,cx+6,cy+3,'villa',null); T(w,cx+5,cy+10,7); w.signs[(cx+5)+','+(cy+10)]='VILLA DI MENTEVILLA — La dimora dei veggenti. Non bussate: sanno già.'; }
-  // cartello
-  T(w,cx-2,cy+2,7);
-  w.signs[(cx-2)+','+(cy+2)] = tw.n.toUpperCase()+' — '+tw.motto;
-  // NPC cittadino
-  w.npcs.push({x:cx+3,y:cy+3,dir:2,spr:ti%5,text:townChat(ti)});
+  if(L.grotta){
+   const dx=x0+L.grotta[0], dy=y0+L.grotta[1];
+   T(w,dx-1,dy,2); T(w,dx+1,dy,2); T(w,dx,dy,8);
+   w.warps[dx+','+dy]={map:'grotta1',x:10,y:13};
+   DOORS['grotta']=[dx,dy];
+  }
+  for(const sg of L.signs||[]){ T(w,x0+sg[0],y0+sg[1],7); w.signs[(x0+sg[0])+','+(y0+sg[1])]=sg[2]; }
+  T(w,x0+L.sign[0],y0+L.sign[1],7);
+  w.signs[(x0+L.sign[0])+','+(y0+L.sign[1])] = tw.n.toUpperCase()+' — '+tw.motto;
+  w.npcs.push({x:x0+L.npc[0],y:y0+L.npc[1],dir:2,spr:ti%5,text:townChat(ti)});
  }
  // allenatori sui percorsi
  for(let r=0;r<ROUTE_TRAINERS.length;r++){
@@ -493,8 +579,11 @@ function buildWorld(){
  // guardia della Lega sul percorso finale
  {
   const pts=routePts[8]; const p=pts[Math.floor(.12*pts.length)];
-  for(let ox=-2;ox<=2;ox++)for(let oy=-2;oy<=2;oy++){ if(ox===0&&oy===0)continue; const x=p[0]+ox,y=p[1]+oy; if(ZONE[y*WORLD_W+x]===9||G(w,x,y)===3||G(w,x,y)===0||G(w,x,y)===1){ if(Math.abs(ox)<=1&&Math.abs(oy)<=1)T(w,x,y,6); } }
-  T(w,p[0],p[1],3);
+  for(let oy=-5;oy<=5;oy++){
+   const x=p[0], y=p[1]+oy;
+   if(oy===0){ T(w,x,y,3); continue; }
+   if(Math.abs(oy)<=4)T(w,x,y,6); else T(w,x,y,2);
+  }
   w.npcs.push({x:p[0],y:p[1],dir:2,spr:4,guard:true,text:'Questa è la Via della Lega! Possono passare solo gli allenatori con tutte le 8 medaglie di Valmora.'});
  }
  // Team Ombra: reclute a Ondaporto (compaiono dopo la 1ª medaglia)
@@ -509,24 +598,6 @@ function buildWorld(){
   w.npcs.push(mkO('ombra1b',t2.x+4,t2.y-1,
    'Non impicciarti degli affari del Team Ombra, moccioso! In due ti schiacciamo!','Il capo non deve saperlo!'));
  }
- // covo del Team Ombra a nord-est di Tossinia
- {
-  const t5=TOWNS[5];
-  const dx=t5.x+11, dy=t5.y-7;
-  T(w,dx-1,dy,2); T(w,dx+1,dy,2); T(w,dx,dy,8);
-  w.warps[dx+','+dy]={map:'covo',x:7,y:11};
-  T(w,dx-2,dy+1,7);
-  w.signs[(dx-2)+','+(dy+1)]='COVO DEL TEAM OMBRA — VIETATO L\'INGRESSO! (soprattutto ai mocciosi con le medaglie)';
- }
- // Grotta di Valmora a nord-est di Dragospoli
- {
-  const t8=TOWNS[8];
-  const gx=t8.x+11, gy=t8.y-7;
-  T(w,gx-1,gy,2); T(w,gx+1,gy,2); T(w,gx,gy,8);
-  w.warps[gx+','+gy]={map:'grotta1',x:10,y:13};
-  T(w,gx-2,gy+1,7);
-  w.signs[(gx-2)+','+(gy+1)]='GROTTA DI VALMORA — I più forti dormono nel profondo. Si dice che solo un Campione possa svegliarli.';
- }
  // altare di Solverio vicino alla Lega
  { const ax=TOWNS[9].x+8, ay=TOWNS[9].y+8; T(w,ax,ay,20); w.signs[ax+','+ay]='ALTARE'; }
  buildInteriors();
@@ -538,7 +609,7 @@ function buildGrotta(){
  const mura=[[4,3,1,8],[8,5,9,1],[12,8,1,5],[16,2,1,5]];
  for(const q of mura)for(let i=0;i<q[2];i++)for(let j=0;j<q[3];j++)T(c1,q[0]+i,q[1]+j,9);
  for(const p of [[2,10],[6,2],[14,11],[18,9]])T(c1,p[0],p[1],18);
- T(c1,10,14,12); c1.warps['10,14']={map:'world',x:TOWNS[8].x+11,y:TOWNS[8].y-6};
+ T(c1,10,14,12); { const D=MAPS.world.DOORS['grotta']; c1.warps['10,14']={map:'world',x:D[0],y:D[1]+1}; }
  T(c1,19,2,12); c1.warps['19,2']={map:'grotta2',x:2,y:11};
  c1.encounter={pool:[[23,20],[42,25],[44,20],[25,20],[50,8]],lv:[30,38]};
  const c2=stdInterior('grotta2',17,14);
@@ -571,25 +642,25 @@ function buildInteriors(){
    const c=stdInterior('center'+ti,9,7);
    for(let x=2;x<7;x++)T(c,x,2,15);
    T(c,7,2,16); T(c,1,2,17);
-   T(c,4,6,12); c.warps['4,6']={map:'world',x:TOWNS[ti].x-9+2,y:TOWNS[ti].y-6+4};
+   T(c,4,6,12); { const D=MAPS.world.DOORS['center'+ti]; c.warps['4,6']={map:'world',x:D[0],y:D[1]+1}; }
    c.npcs.push({x:4,y:1,dir:2,spr:'N',nurse:true,text:''});
    // Market
    const mk=stdInterior('market'+ti,9,7);
    for(let y=2;y<5;y++)T(mk,2,y,15);
    T(mk,6,2,18);T(mk,7,2,18);
-   T(mk,4,6,12); mk.warps['4,6']={map:'world',x:TOWNS[ti].x+5+2,y:TOWNS[ti].y-6+4};
+   T(mk,4,6,12); { const D=MAPS.world.DOORS['market'+ti]; mk.warps['4,6']={map:'world',x:D[0],y:D[1]+1}; }
    mk.npcs.push({x:1,y:3,dir:1,spr:'M',shop:ti,text:''});
    // Casa
    const h=stdInterior('house'+ti,7,6);
    T(h,5,2,18);T(h,1,2,14);
-   T(h,3,5,12); h.warps['3,5']={map:'world',x:TOWNS[ti].x-11+2,y:TOWNS[ti].y+5+4};
+   T(h,3,5,12); { const D=MAPS.world.DOORS['house'+ti]; h.warps['3,5']={map:'world',x:D[0],y:D[1]+1}; }
    h.npcs.push({x:2,y:3,dir:2,spr:(ti+2)%5,text:houseChat(ti)});
   }
   if(tw.gym){
    const g=stdInterior('gym'+ti,11,13);
    T(g,2,3,19);T(g,8,3,19);T(g,2,8,19);T(g,8,8,19);
    for(let y=4;y<11;y++)T(g,5,y,14);
-   T(g,5,12,12); g.warps['5,12']={map:'world',x:TOWNS[ti].x-3+3,y:TOWNS[ti].y+4+5};
+   T(g,5,12,12); { const D=MAPS.world.DOORS['gym'+ti]; g.warps['5,12']={map:'world',x:D[0],y:D[1]+1}; }
    const gt=GYM_TRAINERS[ti];
    if(gt) g.npcs.push({x:5,y:8,dir:2,spr:'T',cls:gt.cls,trainer:{id:'gymt'+ti,name:gt.name,party:gt.party,money:gt.party[0][1]*40,t:gt.t,l:gt.l}});
    g.npcs.push({x:5,y:2,dir:2,spr:'L',cls:'leader',trainer:{id:'leader'+ti,name:tw.gym.leader,party:tw.gym.party,money:tw.gym.money,t:tw.gym.intro,l:tw.gym.lose,badge:ti,badgeName:tw.gym.badge}});
@@ -598,7 +669,7 @@ function buildInteriors(){
    const l=stdInterior('lab',11,9);
    for(let x=3;x<8;x++)T(l,x,3,15);
    T(l,1,2,18);T(l,2,2,18);T(l,8,2,18);T(l,9,2,18);
-   T(l,5,8,12); l.warps['5,8']={map:'world',x:TOWNS[0].x-3+3,y:TOWNS[0].y+4+5};
+   T(l,5,8,12); { const D=MAPS.world.DOORS['lab']; l.warps['5,8']={map:'world',x:D[0],y:D[1]+1}; }
    l.npcs.push({x:5,y:2,dir:2,spr:'P',prof:true,text:''});
   }
   if(tw.league){
@@ -606,7 +677,7 @@ function buildInteriors(){
    for(let x=0;x<13;x++)T(lg,x,1,9);
    for(let y=2;y<27;y++){T(lg,4,y,9);T(lg,8,y,9);} // corridoio centrale
    for(let y=2;y<27;y++){T(lg,5,y,13);T(lg,6,y,14);T(lg,7,y,13);}
-   T(lg,6,27,12); lg.warps['6,27']={map:'world',x:TOWNS[9].x-4+4,y:TOWNS[9].y-7+6};
+   T(lg,6,27,12); { const D=MAPS.world.DOORS['league']; lg.warps['6,27']={map:'world',x:D[0],y:D[1]+1}; }
    const ys=[22,17,12,7];
    for(const yy of [...ys,3]){ T(lg,5,yy,19); T(lg,7,yy,19); } // strettoie: si passa solo al centro
    for(let e=0;e<4;e++){
@@ -619,7 +690,7 @@ function buildInteriors(){
 function buildCovo(){
  const cv2=stdInterior('covo',15,13);
  for(const p of [[3,3],[11,3],[3,8],[11,8]])T(cv2,p[0],p[1],18);
- T(cv2,7,12,12); cv2.warps['7,12']={map:'world',x:TOWNS[5].x+11,y:TOWNS[5].y-6};
+ T(cv2,7,12,12); { const D=MAPS.world.DOORS['covo']; cv2.warps['7,12']={map:'world',x:D[0],y:D[1]+1}; }
  cv2.npcs.push({x:4,y:5,dir:1,spr:'E',cls:'ombra',trainer:{id:'ombraC1',name:'Recluta Ombra',party:[[43,26],[37,26]],money:900,t:'Come sei entrato?! Fuori di qui!',l:'Il capo mi degrada di sicuro...'}});
  cv2.npcs.push({x:10,y:5,dir:3,spr:'E',cls:'ombra',trainer:{id:'ombraC2',name:'Recluta Ombra',party:[[31,27],[36,26]],money:900,t:'Qui prepariamo il risveglio del custode Solverio!',l:'Ho... ho parlato troppo.'}});
  cv2.npcs.push({x:7,y:8,dir:2,spr:'E',cls:'ombra',trainer:{id:'ombraC3',name:'Recluta Ombra',party:[[11,27],[42,26],[29,27]],money:900,t:'Nessuno disturba l\'Ammiraglia Vipera!',l:'V-Vipera... aiuto...'}});
@@ -1129,15 +1200,15 @@ function cutUpdate(dt){
 // --- rivale Milo: 3 battaglie lungo la storia ---
 const RIVAL_CNT={1:[4,5,6],4:[7,8,9],7:[1,2,3]};
 const RIVAL_BATTLES=[
- {id:'rival1', x0:25,x1:31, y0:180,y1:184, badges:0, money:600,
+ {id:'rival1', x0:23,x1:33, y0:180,y1:184, badges:0, money:600,
   party:s=>[[RIVAL_CNT[s][0],8],[10,6]],
   t:'Milo: "Eccoti, cugino di scelte facili! Il mio nuovo compagno scalpita: vediamo chi ha scelto meglio dal laboratorio dello zio!"',
   l:'Uff... hai solo avuto fortuna. Ci rivediamo più avanti!'},
- {id:'rival2', x0:83,x1:89, y0:120,y1:125, badges:2, money:1600,
+ {id:'rival2', x0:81,x1:91, y0:120,y1:125, badges:2, money:1600,
   party:s=>[[13,18],[20,18],[RIVAL_CNT[s][1],20]],
   t:'Milo: "Di nuovo tu! Due medaglie anch\'io, e stavolta mi sono allenato sul serio!"',
   l:'Anche stavolta... incredibile. Ma alla Lega sarà diverso!'},
- {id:'rival3', x0:118,x1:124, y0:38,y1:42, badges:8, money:4000,
+ {id:'rival3', x0:118,x1:124, y0:35,y1:45, badges:8, money:4000,
   party:s=>[[14,40],[22,41],[52,40],[RIVAL_CNT[s][2],42]],
   t:'Milo: "La Via della Lega! Sapevo che saresti arrivato fin qui. Prima della Lega, dovrai superare ME!"',
   l:'...Vai. Il titolo di Campione può essere solo tuo. Rendici fieri!'}
