@@ -1268,7 +1268,7 @@ function cutUpdate(dt){
 const RIVAL_CNT={1:[4,5,6],4:[7,8,9],7:[1,2,3]};
 const RIVAL_BATTLES=[
  {id:'rival1', x0:23,x1:33, y0:180,y1:184, badges:0, money:600,
-  party:s=>[[RIVAL_CNT[s][0],8],[10,6]],
+  party:s=>[[RIVAL_CNT[s][0],6]],
   t:'Milo: "Eccoti, cugino di scelte facili! Il mio nuovo compagno scalpita: vediamo chi ha scelto meglio dal laboratorio dello zio!"',
   l:'Uff... hai solo avuto fortuna. Ci rivediamo più avanti!'},
  {id:'rival2', x0:81,x1:91, y0:120,y1:125, badges:2, money:1600,
